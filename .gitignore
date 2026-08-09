@@ -216,3 +216,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Book Brain - local data
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Local virtual environments
+.venv/
+venv/
+
+# Operating system files
+.DS_Store
+Thumbs.db
