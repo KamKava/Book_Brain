@@ -12,16 +12,19 @@ Book Brain will initially be developed as a local Python application using SQLit
 
 The architecture will evolve incrementally as new functionality is introduced.
 
-The initial system will focus on reliable book and reading data management. More advanced functionality such as recommendations, semantic search, AI, web access, mobile applications and wearable integration will be introduced only after the underlying functionality is stable.
+The initial system will focus on reliable book, library and reading data management. More advanced functionality such as external book discovery, recommendations, semantic search, AI, web access, mobile applications and wearable integration will be introduced only after the underlying functionality is stable.
 
-The planned high-level architecture is:
+The planned long-term architecture is:
 
 ```text
                          ┌─────────────────────┐
                          │        User         │
                          └──────────┬──────────┘
                                     │
-                         Future Web / Mobile UI
+                                    ▼
+                         ┌─────────────────────┐
+                         │  Web / Mobile UI    │
+                         └──────────┬──────────┘
                                     │
                                     ▼
                          ┌─────────────────────┐
@@ -31,7 +34,8 @@ The planned high-level architecture is:
              ┌──────────────────────┼──────────────────────┐
              │                      │                      │
              ▼                      ▼                      ▼
-      Library Management     Reading Management    Recommendation
+      Library Services      Reading Services      Recommendation
+                                                        Engine
              │                      │                      │
              └──────────────────────┼──────────────────────┘
                                     │
@@ -45,29 +49,32 @@ The planned high-level architecture is:
                    ┌────────────────┼────────────────┐
                    │                │                │
                    ▼                ▼                ▼
-              Analytics       Embeddings       External APIs
-                   │                │                │
-                   ▼                ▼                ▼
-              Power BI       Semantic Search    Book Metadata
-                                    │
-                                    ▼
-                             ┌─────────────┐
-                             │     LLM     │
-                             └──────┬──────┘
-                                    │
-                             RAG / Tool Calling
-                                    │
-                                    ▼
-                             AI Librarian
+              Analytics        Embeddings       Book Metadata
+                   │                │           / External APIs
+                   ▼                ▼                │
+              Power BI       Semantic Search         │
+                                    │                 │
+                                    └────────┬────────┘
+                                             ▼
+                                      Recommendation
+                                         Candidates
+                                             │
+                                             ▼
+                                       AI Librarian
+                                             │
+                                             ▼
+                                            LLM
 ```
 
 This represents the planned long-term architecture rather than the initial implementation.
+
+The architecture is deliberately designed so that the database, application logic and recommendation system remain functional without an LLM.
 
 ---
 
 # 2. Architectural Principles
 
-Book Brain will follow the following principles:
+Book Brain will follow the following principles.
 
 ## 2.1 Incremental Development
 
@@ -76,6 +83,8 @@ The system will be developed in stages.
 The initial implementation will contain only the functionality required for the MVP.
 
 Future components will be introduced when they provide practical value.
+
+The project should avoid introducing technologies simply because they are technically interesting.
 
 ---
 
@@ -91,11 +100,15 @@ This includes:
 * Reading status.
 * Ratings.
 * Reading dates.
+* Reading history.
 * Reading sessions.
 * Notes.
 * Formats.
+* Series information.
 
-The AI system must not invent or modify factual library information without going through controlled application functionality.
+External book databases may provide metadata, but they do not replace Book Brain's database.
+
+The LLM must not invent or override factual library information.
 
 ---
 
@@ -103,17 +116,18 @@ The AI system must not invent or modify factual library information without goin
 
 Different components should have clearly defined responsibilities.
 
-For example:
-
 ```text
 Database
-    Stores data
+    Stores application data
 
 Python application
     Implements business logic
 
+External book services
+    Provide book metadata and external candidates
+
 Recommendation engine
-    Selects and ranks books
+    Selects, filters and ranks books
 
 LLM
     Understands natural language and communicates results
@@ -126,7 +140,12 @@ Frontend
 
 Power BI
     Provides advanced analytics and visualisation
+
+Embeddings / semantic search
+    Identify semantic similarity between books
 ```
+
+Each component should perform the work for which it is best suited.
 
 ---
 
@@ -151,14 +170,35 @@ Structured constraints
      ↓
 Recommendation engine
      ↓
-Database query
+Database / external sources
      ↓
 Candidate books
      ↓
+Filtering
+     ↓
 Ranking
      ↓
-LLM explains recommendation
+LLM explains results
 ```
+
+The LLM therefore acts as an interface to Book Brain rather than as the authority on the user's library.
+
+---
+
+## 2.5 Keep AI Replaceable
+
+Book Brain should not become permanently dependent on one LLM provider.
+
+Where practical, AI functionality should be implemented behind an abstraction layer.
+
+This should allow the application to switch between:
+
+* Local models.
+* External APIs.
+* Different model providers.
+* Different model versions.
+
+The rest of the application should not need to be redesigned when the LLM changes.
 
 ---
 
@@ -196,6 +236,7 @@ book-brain/
 │   ├── models/
 │   ├── repositories/
 │   ├── services/
+│   ├── integrations/
 │   ├── analytics/
 │   └── main.py
 │
@@ -215,11 +256,15 @@ The important principle is separation of responsibilities.
 
 Represent application entities such as:
 
-* Book
-* Author
-* Genre
-* Library Entry
-* Reading Session
+* Book.
+* Author.
+* Genre.
+* Series.
+* Library Entry.
+* Reading History.
+* Reading Session.
+* Rating.
+* Note.
 
 ### Database layer
 
@@ -229,6 +274,7 @@ Responsible for:
 * Executing SQL.
 * Managing schema.
 * Persisting data.
+* Managing transactions.
 
 ### Repository layer
 
@@ -239,6 +285,7 @@ Examples:
 ```text
 BookRepository
 AuthorRepository
+LibraryRepository
 ReadingRepository
 ```
 
@@ -250,12 +297,28 @@ Examples:
 
 ```text
 BookService
+LibraryService
 ReadingService
 RecommendationService
 AnalyticsService
 ```
 
 The service layer should prevent business rules from becoming tightly coupled to database queries.
+
+### Integration layer
+
+Future external services should be isolated from the core application.
+
+Examples:
+
+```text
+BookMetadataService
+GoogleBooksClient
+OpenLibraryClient
+LLMProvider
+```
+
+External services should not directly manipulate the database.
 
 ---
 
@@ -314,7 +377,63 @@ A migration will only be performed when justified by requirements such as:
 
 # 7. External Book Data
 
-Book Brain will eventually use external book databases/APIs to reduce manual data entry and allow discovery of books outside the user's library.
+Book Brain will eventually use external book databases and APIs for two distinct purposes:
+
+1. **Book metadata lookup** when adding books to the user's library.
+2. **External book discovery** when generating recommendations for books the user does not own.
+
+These two functions should remain conceptually separate.
+
+---
+
+## 7.1 External Book Metadata
+
+The primary purpose of external metadata lookup is to reduce manual data entry and prevent errors.
+
+The user may enter:
+
+* ISBN.
+* Title.
+* Author.
+
+Book Brain can then search external book catalogues and return possible matches.
+
+The intended flow is:
+
+```text
+User enters title / author / ISBN
+              ↓
+       Book Search Service
+              ↓
+       External Book API(s)
+              ↓
+       Candidate results
+              ↓
+        User selects result
+              ↓
+      Metadata mapped to model
+              ↓
+       User confirms / edits
+              ↓
+       Book Brain database
+```
+
+Potential metadata includes:
+
+* Title.
+* Author.
+* ISBN.
+* Page count.
+* Publication date.
+* Publisher.
+* Edition information.
+* Genres/categories.
+* Cover image.
+* Book description.
+
+The external source should not directly write into the database.
+
+The user should remain in control of the final library record.
 
 Potential sources include:
 
@@ -322,23 +441,71 @@ Potential sources include:
 * Open Library.
 * Other suitable book metadata APIs.
 
-External APIs will not replace the Book Brain database.
+The selected sources will be documented in the relevant technical decision record.
 
-The relationship will be:
+---
+
+## 7.2 External Recommendation Discovery
+
+External book discovery is a separate capability used when Book Brain needs to find books that are **not already in the user's library**.
+
+For example:
+
+> "I'm going to the bookshop. What should I buy?"
+
+The intended flow is:
 
 ```text
-External Book API
-       ↓
-Book metadata
-       ↓
-Book Brain
-       ↓
-User reviews/edits
-       ↓
-Book Brain database
+User request
+      ↓
+Recommendation context
+      ↓
+External book catalogues
+      ↓
+Potential candidates
+      ↓
+Remove books already owned
+      ↓
+Apply preferences and exclusions
+      ↓
+Recommendation engine
+      ↓
+Rank candidates
+      ↓
+Return recommendations
 ```
 
-External API failures must not compromise existing user data.
+External discovery may search using:
+
+* Genres.
+* Authors.
+* Keywords.
+* Themes.
+* Book descriptions.
+* Similarity.
+* Publication information.
+
+External recommendation candidates are not automatically added to the user's library.
+
+They remain recommendation candidates until the user chooses to acquire or add a book.
+
+---
+
+## 7.3 External API Reliability
+
+External APIs must not compromise existing Book Brain data.
+
+The application should:
+
+* Handle API failures.
+* Handle timeouts.
+* Handle rate limits.
+* Handle incomplete metadata.
+* Handle unavailable cover images.
+* Handle duplicate results.
+* Validate returned data.
+* Allow manual correction.
+* Never overwrite existing user data automatically.
 
 ---
 
@@ -355,7 +522,7 @@ Book
 Library Entry
  └── User owns Dracula
 
-Reading Record
+Reading History
  └── User read Dracula
 
 Reading Sessions
@@ -363,6 +530,49 @@ Reading Sessions
  ├── 35 minutes
  └── 45 minutes
 ```
+
+Reading sessions are intended to support **both manual and future automated tracking**.
+
+A user should eventually be able to start a reading session directly within Book Brain:
+
+```text
+User selects:
+Dracula
+
+       ↓
+
+[ Start Reading ]
+
+       ↓
+
+Reading session begins
+
+       ↓
+
+[ Stop Reading ]
+
+       ↓
+
+Session saved
+```
+
+The application should therefore not design reading sessions as Fitbit-specific functionality.
+
+Potential session sources may include:
+
+```text
+Manual
+Mobile
+Web
+Wearable
+Imported
+```
+
+The resulting reading session should use the same underlying data model regardless of its source.
+
+Reading sessions may be associated with a currently selected book.
+
+Unassigned sessions may also be supported.
 
 This allows the application to calculate:
 
@@ -372,10 +582,6 @@ This allows the application to calculate:
 * Reading time by book.
 * Reading time by genre.
 * Reading time over time.
-
-Reading sessions may eventually be associated with a currently selected book.
-
-Unassigned sessions may also be supported.
 
 ---
 
@@ -414,6 +620,7 @@ Potential Power BI analysis includes:
 * Book-length distribution.
 * Author analysis.
 * Reading trends.
+* Reading-session analysis.
 
 Power BI will not be required for the core application to function.
 
@@ -425,44 +632,48 @@ The recommendation engine will initially be implemented independently of an LLM.
 
 This is intentional.
 
-The recommendation system should be able to:
+The recommendation system should be able to operate using deterministic application logic and structured data.
 
-1. Identify eligible books.
-2. Apply user constraints.
-3. Score candidates.
-4. Rank candidates.
-5. Explain the factors used.
+It should be capable of:
 
-For example:
+1. Identifying eligible candidates.
+2. Applying user constraints.
+3. Applying exclusion rules.
+4. Scoring candidates.
+5. Ranking candidates.
+6. Recording recommendation factors.
+7. Providing structured explanations.
+
+The recommendation engine may receive candidates from multiple sources.
 
 ```text
-User request
-     ↓
-Constraints
-     ↓
-Candidate selection
-     ↓
-Filtering
-     ↓
-Scoring
-     ↓
-Ranking
-     ↓
-Recommendation
+                       Recommendation request
+                                ↓
+                       Context / constraints
+                                ↓
+                 ┌──────────────┴──────────────┐
+                 │                             │
+                 ▼                             ▼
+          Library candidates            External candidates
+                 │                             │
+                 │                       External APIs
+                 │                             │
+                 └──────────────┬──────────────┘
+                                ↓
+                       Candidate filtering
+                                ↓
+                       Recommendation rules
+                                ↓
+                             Scoring
+                                ↓
+                             Ranking
+                                ↓
+                         Recommendations
 ```
 
-Potential recommendation inputs include:
+The recommendation engine should not need to know whether a candidate originally came from the user's library or an external source in order to score it.
 
-* Ownership.
-* TBR status.
-* Reading history.
-* Ratings.
-* Genres.
-* Authors.
-* Page count.
-* Reading context.
-* Similar books.
-* User preferences.
+However, candidate origin and availability should remain explicit so that context-specific rules can be applied.
 
 ---
 
@@ -472,12 +683,12 @@ Book Brain will treat the user's situation as part of the recommendation request
 
 For example:
 
-### Beach reading
+## Beach reading
 
 ```text
 Context: Beach
 Availability: Owned
-Status: Unread/TBR
+Status: Unread / TBR
 Preferred length: Short
 ```
 
@@ -485,7 +696,9 @@ The system should prioritise books already physically owned.
 
 It should not recommend a book that the user would need to purchase before going to the beach.
 
-### Bookshop visit
+---
+
+## Bookshop visit
 
 ```text
 Context: Bookshop
@@ -495,11 +708,70 @@ Preferences: Based on reading history
 
 The system may search external book catalogues and recommend books that match the user's interests but are not already owned.
 
-This distinction will be implemented in the recommendation layer rather than relying entirely on the LLM.
+---
+
+## Short reading session
+
+```text
+Context: Short session
+Availability: Owned
+Preferred length: Short
+```
+
+The system may prioritise shorter books or books that are suitable for a limited reading period.
 
 ---
 
-# 12. Semantic Search and Embeddings
+## General recommendation
+
+```text
+Context: General
+Availability: Depends on request
+Preferences: User history
+```
+
+The recommendation engine may consider both library and external candidates depending on the user's request.
+
+The recommendation engine should explicitly model these differences rather than expecting the LLM to handle them implicitly.
+
+---
+
+# 12. Recommendation Candidate Sources
+
+Recommendation candidates may come from several sources.
+
+### Internal candidates
+
+Books already known to Book Brain:
+
+* Owned books.
+* TBR books.
+* Unread books.
+* Previously read books where appropriate.
+
+### External candidates
+
+Books discovered through external sources:
+
+* External book catalogues.
+* Search results.
+* Author searches.
+* Genre searches.
+* Keyword searches.
+* Semantic similarity searches.
+
+The recommendation engine should be responsible for applying rules such as:
+
+* Excluding owned books when the user is shopping.
+* Excluding already-read books where appropriate.
+* Applying genre exclusions.
+* Applying author exclusions.
+* Applying page-count preferences.
+* Applying contextual constraints.
+
+---
+
+# 13. Semantic Search and Embeddings
 
 A later version may introduce embeddings to improve book similarity.
 
@@ -523,8 +795,22 @@ Potential uses include:
 
 * Finding books similar to highly-rated books.
 * Improving recommendations.
-* Finding semantically similar genres/themes.
+* Finding semantically similar themes.
+* Finding books with similar descriptions.
 * Supporting AI librarian retrieval.
+* Improving external recommendation discovery.
+
+Semantic similarity should complement rather than automatically replace the rule-based recommendation engine.
+
+The recommendation system may combine:
+
+```text
+Rule-based score
+        +
+Semantic similarity
+        ↓
+Final recommendation score
+```
 
 Potential technologies include:
 
@@ -537,7 +823,7 @@ A separate vector database will only be introduced if it provides a meaningful b
 
 ---
 
-# 13. LLM Architecture
+# 14. LLM Architecture
 
 The LLM will be introduced after the core recommendation system has been implemented.
 
@@ -545,6 +831,7 @@ The LLM's primary responsibilities will be:
 
 * Understanding natural-language requests.
 * Extracting constraints.
+* Converting requests into structured requirements.
 * Communicating recommendations.
 * Explaining recommendation results.
 * Answering questions using retrieved Book Brain data.
@@ -561,7 +848,7 @@ A provider abstraction should be considered so that the application is not perma
 
 ---
 
-# 14. AI Librarian Architecture
+# 15. AI Librarian Architecture
 
 The AI librarian will eventually combine:
 
@@ -570,76 +857,97 @@ The AI librarian will eventually combine:
 * Recommendation engine.
 * Analytics.
 * Semantic search.
-* Application tools.
+* External book discovery.
+* Controlled application tools.
 
 The intended architecture is:
 
 ```text
-                       User
-                        │
-                        ▼
-                       LLM
-                        │
-                 Understand request
-                        │
-                        ▼
-                 Select appropriate
-                     capability
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-       Library       Analytics   Recommendations
-       Search        Queries        Engine
-          │             │             │
-          └─────────────┼─────────────┘
-                        │
-                        ▼
-                     Results
-                        │
-                        ▼
-                       LLM
-                        │
-                        ▼
-                  User response
+                         User
+                          │
+                          ▼
+                         LLM
+                          │
+                  Understand request
+                          │
+                          ▼
+                  Structured request
+                          │
+          ┌───────────────┼────────────────┐
+          │               │                │
+          ▼               ▼                ▼
+       Library        Analytics      Recommendations
+       queries          queries            │
+          │               │          ┌─────┴─────┐
+          │               │          ▼           ▼
+          │               │      Internal     External
+          │               │     candidates   candidates
+          │               │          │           │
+          └───────────────┼──────────┴───────────┘
+                          │
+                          ▼
+                  Recommendation engine
+                          │
+                          ▼
+                       Results
+                          │
+                          ▼
+                         LLM
+                          │
+                          ▼
+                    User response
 ```
+
+The AI librarian should not independently decide which books satisfy database constraints.
+
+Instead, it should delegate these tasks to Book Brain's application services.
 
 ---
 
-# 15. Retrieval-Augmented Generation
+# 16. Retrieval Architecture
 
-RAG may be introduced when the AI librarian requires access to larger amounts of Book Brain data.
+Retrieval may be implemented using different mechanisms depending on the type of request.
 
-The basic flow will be:
-
-```text
-User question
-      ↓
-LLM
-      ↓
-Retrieve relevant data
-      ↓
-Database / semantic search
-      ↓
-Relevant information
-      ↓
-LLM
-      ↓
-Answer
-```
-
-RAG will be used where retrieval provides a benefit.
-
-Simple structured questions may instead use direct SQL queries.
+Not every AI request requires RAG or semantic search.
 
 For example:
 
 > "How many books did I read this year?"
 
-may be better handled by a direct database query than semantic search.
+may be best handled through a direct SQL query.
+
+Whereas:
+
+> "Which books I own are most similar to the weird horror books I've rated highly?"
+
+may benefit from semantic search and embeddings.
+
+The architecture should therefore support:
+
+```text
+User request
+      ↓
+LLM interprets request
+      ↓
+Determine retrieval method
+      │
+      ├───────────────┐
+      ▼               ▼
+Direct query     Semantic retrieval
+      │               │
+      └───────┬───────┘
+              ▼
+           Results
+              │
+              ▼
+             LLM
+```
+
+RAG should be introduced where retrieval provides a meaningful benefit rather than being used for every query.
 
 ---
 
-# 16. AI Tool Architecture
+# 17. AI Tool Architecture
 
 The AI librarian may eventually have controlled access to application tools.
 
@@ -659,15 +967,19 @@ stop_reading_session()
 search_external_books()
 ```
 
-The AI should only be able to perform actions explicitly exposed through these tools.
+Tools should be implemented as controlled application functionality.
+
+The LLM should not receive unrestricted access to SQL or the database.
 
 Tool arguments should be validated by the application.
 
 Destructive operations should require additional safeguards.
 
+Tool calls should be logged where appropriate for debugging and evaluation.
+
 ---
 
-# 17. Web Application Architecture
+# 18. Web Application Architecture
 
 The web application will be introduced after the core functionality and recommendation system are stable.
 
@@ -685,9 +997,11 @@ The planned architecture is:
           ┌─────────┼─────────┐
           ▼         ▼         ▼
        Services  Analytics  AI
-          │
-          ▼
-       Database
+          │         │         │
+          └─────────┼─────────┘
+                    │
+                    ▼
+                 Database
 ```
 
 Potential frontend technologies include:
@@ -700,9 +1014,11 @@ Potential frontend technologies include:
 
 The final frontend technology will be selected when implementation begins.
 
+The frontend should communicate with the application through the backend API rather than implementing separate business logic.
+
 ---
 
-# 18. FastAPI Backend
+# 19. FastAPI Backend
 
 FastAPI will eventually provide a backend API between the user interfaces and the application logic.
 
@@ -712,10 +1028,13 @@ Potential API areas include:
 /books
 /authors
 /genres
+/series
+/library
 /reading
 /sessions
 /statistics
 /recommendations
+/external-books
 /ai
 ```
 
@@ -723,9 +1042,11 @@ The API will provide controlled access to application functionality.
 
 The business logic should remain in application services rather than being embedded directly into API endpoints.
 
+API responses should use structured schemas and appropriate validation.
+
 ---
 
-# 19. Mobile Architecture
+# 20. Mobile Architecture
 
 The mobile application will communicate with the same backend used by the web application.
 
@@ -755,7 +1076,7 @@ The mobile application should not create a separate copy of the application's co
 
 ---
 
-# 20. Barcode Scanning
+# 21. Barcode Scanning
 
 Barcode scanning will eventually allow users to scan an ISBN using a mobile device.
 
@@ -768,22 +1089,26 @@ Barcode scanner
   ↓
 ISBN
   ↓
-Book metadata API
+Book metadata service
   ↓
-Book information
+Candidate book records
   ↓
 User confirmation
   ↓
 Book Brain database
 ```
 
-This functionality is expected to be primarily useful on mobile.
+Barcode scanning is therefore an input mechanism for the external book metadata system.
+
+It should use the same book-search and metadata functionality as manually entering an ISBN.
 
 ---
 
-# 21. Wearable / Fitbit Integration
+# 22. Wearable / Fitbit Integration
 
 Wearable integration is a future research area rather than a confirmed feature.
+
+Reading sessions are designed to support manual tracking first, with wearable integration potentially becoming an additional session source later.
 
 The intended concept is a reading activity that allows the user to indicate:
 
@@ -792,8 +1117,6 @@ The intended concept is a reading activity that allows the user to indicate:
 and later:
 
 **Stop Reading**
-
-The resulting reading session could be synchronised with Book Brain.
 
 Potential flow:
 
@@ -836,7 +1159,7 @@ The technical feasibility of direct Fitbit integration must be investigated befo
 
 ---
 
-# 22. Security Architecture
+# 23. Security Architecture
 
 Security requirements will increase as Book Brain moves from a local application to a remotely accessible application.
 
@@ -850,12 +1173,15 @@ The system should eventually include:
 * Input validation.
 * Authorisation.
 * Protection of personal library data.
+* Secure external API communication.
 
 API keys and secrets must never be committed to GitHub.
 
+The local MVP will have significantly fewer security requirements because it will not initially expose the application to the public internet.
+
 ---
 
-# 23. Deployment Architecture
+# 24. Deployment Architecture
 
 The initial MVP will run locally.
 
@@ -870,8 +1196,17 @@ Frontend hosting
    ▼
 FastAPI backend
    │
-   ▼
-PostgreSQL
+   ├──────────────┐
+   │              │
+   ▼              ▼
+PostgreSQL    External APIs
+   │
+   ├──────────────┐
+   ▼              ▼
+Analytics      Vector storage
+                  │
+                  ▼
+             AI services
 ```
 
 Additional services may eventually include:
@@ -880,12 +1215,13 @@ Additional services may eventually include:
 * External book APIs.
 * Vector search.
 * File/image storage.
+* Monitoring and logging services.
 
 Free or low-cost hosting should be preferred where practical.
 
 ---
 
-# 24. Technology Evolution
+# 25. Technology Evolution
 
 The expected technology progression is:
 
@@ -901,10 +1237,21 @@ Testing
 
         ↓
 
+Core library
+
+Repositories
+Services
+Validation
+Automated testing
+
+
+        ↓
+
 External data
 
 Book APIs
 HTTP/API integration
+ISBN / title / author search
 
 
         ↓
@@ -921,8 +1268,9 @@ Analytical SQL
 Recommendations
 
 Python
-Scoring
-Content-based filtering
+Rule-based scoring
+Context-aware filtering
+Content-based recommendations
 
 
         ↓
@@ -931,6 +1279,7 @@ Semantic intelligence
 
 Embeddings
 Vector search
+Semantic similarity
 
 
         ↓
@@ -946,9 +1295,10 @@ Structured outputs
 
 AI Librarian
 
-RAG
+Natural-language queries
+Controlled retrieval
+RAG where appropriate
 Tool calling
-Controlled AI actions
 
 
         ↓
@@ -956,7 +1306,7 @@ Controlled AI actions
 Web
 
 FastAPI
-React
+React / JavaScript
 TypeScript
 
 
@@ -974,13 +1324,22 @@ Device integration
 
 Wearables
 Reading-session synchronisation
+
+
+        ↓
+
+Deployment
+
+Cloud hosting
+PostgreSQL
+Production infrastructure
 ```
 
 This progression is intentional.
 
 ---
 
-# 25. Current Architecture
+# 26. Current Architecture
 
 At the current stage, only the following components are planned for immediate implementation:
 
@@ -1002,9 +1361,22 @@ Automated tests
 
 Everything beyond this is planned architecture rather than implemented functionality.
 
+The current implementation should not depend on:
+
+* FastAPI.
+* React.
+* External APIs.
+* Embeddings.
+* LLMs.
+* RAG.
+* Vector databases.
+* Cloud infrastructure.
+* Mobile applications.
+* Wearable devices.
+
 ---
 
-# 26. Architectural Decision: Avoid Premature Complexity
+# 27. Architectural Decision: Avoid Premature Complexity
 
 Book Brain will not initially implement:
 
@@ -1024,7 +1396,99 @@ This approach reduces unnecessary complexity while preserving a clear path towar
 
 ---
 
-# 27. Relationship to Other Documentation
+# 28. Architectural Decision: External Data Does Not Own User Data
+
+External book APIs are considered sources of information, not sources of truth.
+
+The relationship is:
+
+```text
+External source
+      ↓
+Potential metadata
+      ↓
+Book Brain validation
+      ↓
+User confirmation
+      ↓
+Book Brain database
+```
+
+Once information has been accepted into Book Brain, the user's database record becomes authoritative.
+
+External sources should not silently overwrite user edits.
+
+For example, if an external API says a book has 320 pages but the user's physical edition has 347 pages, Book Brain should be able to preserve the user's edition-specific information.
+
+---
+
+# 29. Architectural Decision: Recommendation Engine Is Independent of the LLM
+
+The recommendation engine must be capable of operating without an LLM.
+
+This allows:
+
+```text
+Input
+  ↓
+Candidate selection
+  ↓
+Filtering
+  ↓
+Scoring
+  ↓
+Ranking
+  ↓
+Result
+```
+
+to be tested independently.
+
+The LLM can later act as a natural-language interface:
+
+```text
+User
+  ↓
+LLM
+  ↓
+Structured constraints
+  ↓
+Recommendation engine
+  ↓
+Ranked results
+  ↓
+LLM explanation
+  ↓
+User
+```
+
+This separation makes recommendation behaviour more deterministic, explainable and testable.
+
+---
+
+# 30. Architectural Decision: Reading Sessions Are Source-Agnostic
+
+Reading sessions should not be designed specifically around Fitbit or another wearable.
+
+A reading session represents the user's reading activity regardless of how it was recorded.
+
+Potential sources include:
+
+```text
+Manual
+Web
+Mobile
+Wearable
+Imported
+```
+
+All sources should ultimately produce the same logical reading-session record.
+
+This allows Book Brain to introduce wearable integration later without redesigning the reading-session system.
+
+---
+
+# 31. Relationship to Other Documentation
 
 This document describes **how the system is expected to be structured**.
 
@@ -1041,3 +1505,5 @@ Other project documentation provides complementary information:
 These documents should be updated as architectural decisions change.
 
 Major architectural changes should be recorded as technical decisions in the development documentation.
+
+The architecture document should describe both the current implementation and the intended evolution of the system, while avoiding the assumption that future components have already been built.
