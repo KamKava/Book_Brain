@@ -32,7 +32,7 @@ The AI system will be built on top of a reliable database and recommendation sys
 
 The long-term architecture is expected to develop approximately as follows:
 
-```
+```text
                     ┌────────────────────┐
                     │       User         │
                     └─────────┬──────────┘
