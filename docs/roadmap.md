@@ -1,7 +1,7 @@
 # Book Brain — Development Roadmap
 
 **Project status:** Early development
-**Version:** 0.1
+**Version:** 0.2
 **Last updated:** August 2026
 
 ---
@@ -13,18 +13,21 @@ Book Brain is intended to become a personal library management, reading-tracking
 The application will allow users to:
 
 * Catalogue books they own.
+* Store book metadata including page count and series information.
 * Manage their TBR.
 * Track current and completed reading.
-* Record ratings, notes, dates and formats.
-* Track reading sessions and reading time.
+* Record ratings, notes, dates, and formats.
+* Track individual reading sessions and reading time.
 * Analyse their reading habits.
 * Receive context-aware recommendations.
+* Discover books from external book catalogues.
+* Distinguish between books they already own and books they may wish to acquire.
 * Ask questions about their library using natural language.
-* Eventually interact with Book Brain through web, mobile and potentially wearable devices.
+* Eventually interact with Book Brain through web, mobile, and potentially wearable devices.
 
 The project will be developed incrementally, with each phase producing a usable or demonstrable improvement.
 
-The AI system will be built on top of a reliable database and recommendation system rather than being treated as the foundation of the application.
+The AI system will be built on top of a reliable database, application logic, and recommendation system rather than being treated as the foundation of the application.
 
 ---
 
@@ -33,36 +36,76 @@ The AI system will be built on top of a reliable database and recommendation sys
 The long-term architecture is expected to develop approximately as follows:
 
 ```text
-                    ┌────────────────────┐
-                    │       User         │
-                    └─────────┬──────────┘
-                              │
-                    ┌─────────▼──────────┐
-                    │   Web / Mobile UI  │
-                    └─────────┬──────────┘
-                              │
-                         Backend API
-                              │
-             ┌────────────────┼────────────────┐
-             │                │                │
-             ▼                ▼                ▼
-       Library System   Reading System   Recommendation
-             │                │                │
-             └────────────────┼────────────────┘
-                              │
-                         Database
-                              │
-             ┌────────────────┼────────────────┐
-             │                │                │
-             ▼                ▼                ▼
-        Book Metadata     Analytics       Embeddings
-                                              │
-                                              ▼
-                                         AI / LLM
-                                              │
-                                              ▼
-                                        AI Librarian
+                         ┌───────────────┐
+                         │     User      │
+                         └───────┬───────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    │                         │
+                    ▼                         ▼
+              Web Frontend              Mobile App
+                    │                         │
+                    └────────────┬────────────┘
+                                 │
+                                 ▼
+                         ┌───────────────┐
+                         │   FastAPI     │
+                         │    Backend    │
+                         └───────┬───────┘
+                                 │
+              ┌──────────────────┼──────────────────┐
+              │                  │                  │
+              ▼                  ▼                  ▼
+        Library System     Reading System    Recommendation
+                                                  Engine
+              │                  │                  │
+              └──────────────────┼──────────────────┘
+                                 │
+                                 ▼
+                           ┌──────────┐
+                           │ Database │
+                           └────┬─────┘
+                                │
+                 ┌──────────────┼──────────────┐
+                 │              │              │
+                 ▼              ▼              ▼
+             Analytics    External Data     Embeddings
+                                │              │
+                                │              ▼
+                                │          AI / LLM
+                                │              │
+                                └──────┬───────┘
+                                       ▼
+                                 AI Librarian
 ```
+
+External book data may serve two different purposes:
+
+```text
+User entering a book
+        ↓
+External book search
+        ↓
+Select metadata
+        ↓
+Add to Book Brain
+```
+
+and later:
+
+```text
+User wants to buy a book
+        ↓
+External book catalogue
+        ↓
+Potential candidates
+        ↓
+Recommendation Engine
+        ↓
+AI explains recommendations
+```
+
+These are separate use cases and should not be unnecessarily coupled.
 
 The architecture will be developed gradually. Components should not be implemented before they are required.
 
@@ -80,8 +123,8 @@ The architecture will be developed gradually. Components should not be implement
 * [x] Create `docs/` directory
 * [x] Create requirements document
 * [x] Create roadmap
-* [ ] Create architecture document
-* [ ] Create database design document
+* [x] Create architecture document
+* [x] Create database design document
 * [ ] Create development log
 * [ ] Establish technical decision record process
 
@@ -96,14 +139,14 @@ The architecture will be developed gradually. Components should not be implement
 
 ### Technical design
 
-* [ ] Finalise initial requirements
-* [ ] Define initial architecture
-* [ ] Design database
-* [ ] Create ER diagram
-* [ ] Identify core entities
-* [ ] Identify relationships
-* [ ] Establish testing approach
-* [ ] Document technical decisions
+* [x] Finalise initial requirements
+* [x] Define initial architecture
+* [x] Design database
+* [x] Create ER diagram
+* [x] Identify core entities
+* [x] Identify relationships
+* [x] Establish testing approach
+* [x] Document technical decisions
 
 **Outcome:**
 
@@ -111,65 +154,116 @@ A documented and professionally structured project ready for implementation.
 
 ---
 
-# Phase 2 — Core Database
+# Phase 2 — Build the Database
 
-**Goal:** Build the data foundation of Book Brain.
+**Goal:** Turn the approved database design into a working SQLite database.
 
-* [ ] Create SQLite database
-* [ ] Create database schema
-* [ ] Implement Book table/entity
-* [ ] Implement Author relationship
-* [ ] Implement Genre relationship
-* [ ] Implement Library Entry
-* [ ] Implement Reading Status
-* [ ] Implement Rating
-* [ ] Implement Reading Dates
-* [ ] Implement Notes
-* [ ] Implement Book Format
-* [ ] Implement database constraints
-* [ ] Create database seed/test data
+* [ ] Create database initialisation module
+* [ ] Create `Book` table
+* [ ] Create `Author` table
+* [ ] Create `Genre` table
+* [ ] Create `Series` table
+* [ ] Create `Format` table
+* [ ] Create `LibraryEntry` table
+* [ ] Create `ReadingStatus` table
+* [ ] Create `Rating` table
+* [ ] Create `Note` table
+* [ ] Create `ReadingHistory` table
+* [ ] Create `ReadingSession` table
+* [ ] Create junction tables
+* [ ] Add primary keys
+* [ ] Add foreign keys
+* [ ] Add constraints
+* [ ] Add indexes where appropriate
+* [ ] Add initial reading statuses
+* [ ] Add database seed/test data
+* [ ] Test database creation
 * [ ] Write database tests
+* [ ] Document implementation
+
+The database shall support:
+
+* Page counts.
+* Multiple authors.
+* Multiple genres.
+* Book series.
+* Series position.
+* Multiple formats.
+* Library ownership.
+* Reading history.
+* Reading sessions.
+* Unassigned reading sessions.
 
 **Outcome:**
 
-A reliable SQLite database representing a real personal book library.
+Running Book Brain creates a valid SQLite database matching the approved ER diagram.
 
 ---
 
 # Phase 3 — Core Library MVP
 
-**Goal:** Create a functional Python application capable of managing the library.
+**Goal:** Create a functional Python application capable of managing the user's library.
+
+### Book management
 
 * [ ] Implement book creation
 * [ ] Implement book retrieval
 * [ ] Implement book updating
 * [ ] Implement book deletion
 * [ ] Implement book search
-* [ ] Implement filtering
-* [ ] Implement reading status management
-* [ ] Implement rating management
+* [ ] Implement basic filtering
+
+### Book metadata
+
+* [ ] Store title
+* [ ] Store ISBN
+* [ ] Store page count
+* [ ] Store publication information
+* [ ] Store authors
+* [ ] Store genres
+* [ ] Store series
+* [ ] Store series position
+* [ ] Store formats
+
+### Library management
+
+* [ ] Add book to personal library
+* [ ] Remove book from personal library
+* [ ] Track ownership
+* [ ] Implement reading status
+* [ ] Implement ratings
 * [ ] Implement reading dates
 * [ ] Implement notes
-* [ ] Implement format management
+
+### Quality
+
 * [ ] Add input validation
 * [ ] Add error handling
+* [ ] Prevent inappropriate duplicate records
 * [ ] Add automated tests
 * [ ] Add basic data export
 
 **Outcome:**
 
-A functional local Book Brain application with no frontend required.
+A functional local Book Brain application capable of managing a real personal book collection.
 
 ---
 
 # Phase 4 — Reading Sessions
 
-**Goal:** Introduce detailed tracking of time spent reading.
+**Goal:** Track individual periods of time spent reading.
 
-* [ ] Design reading-session data model
+Reading sessions are an application feature in their own right. They are **not dependent on Fitbit**.
+
+The initial application shall support manually starting and stopping a reading session.
+
+### Core functionality
+
 * [ ] Implement session creation
-* [ ] Implement session start
-* [ ] Implement session completion
+* [ ] Implement "Start Reading"
+* [ ] Implement "Stop Reading"
+* [ ] Record session start time
+* [ ] Record session end time
 * [ ] Calculate session duration
 * [ ] Associate sessions with books
 * [ ] Support unassigned sessions
@@ -179,38 +273,75 @@ A functional local Book Brain application with no frontend required.
 * [ ] Calculate average session duration
 * [ ] Add reading-time tests
 
-### Future consideration
+A session may originate from different sources in the future:
 
-* [ ] Investigate wearable integration requirements
-* [ ] Investigate Fitbit developer capabilities
-* [ ] Document technical feasibility
+```text
+Manual / Web / Mobile / Wearable
+              ↓
+       Reading Session
+              ↓
+           Database
+```
 
 **Outcome:**
 
-Book Brain can track not only which books the user reads, but how much time they spend reading.
+Book Brain can track how much time the user spends reading independently of any wearable device.
 
 ---
 
 # Phase 5 — External Book Data
 
-**Goal:** Reduce manual data entry.
+**Goal:** Reduce manual data entry and improve metadata accuracy.
 
-* [ ] Research free book APIs
-* [ ] Compare API data quality
-* [ ] Compare API limits/licensing
-* [ ] Select initial API
-* [ ] Implement ISBN lookup
-* [ ] Retrieve book metadata
-* [ ] Populate book information automatically
-* [ ] Add cover images
-* [ ] Handle missing/incomplete data
+This phase concerns **external book data used while adding or editing books**, rather than recommendations for books the user may want to purchase later.
+
+### Issue — Research external book data sources
+
+* [ ] Research Google Books API
+* [ ] Research Open Library API
+* [ ] Research other suitable sources
+* [ ] Compare title/author metadata
+* [ ] Compare ISBN coverage
+* [ ] Compare page-count coverage
+* [ ] Compare genre/category data
+* [ ] Compare cover-image availability
+* [ ] Compare publication/edition information
+* [ ] Compare search capabilities
+* [ ] Compare usage limits
+* [ ] Compare licensing
+* [ ] Compare cost
+* [ ] Determine primary source
+* [ ] Determine fallback source if appropriate
+* [ ] Document decision
+
+### Issue — Implement external book search
+
+The user should be able to search external book data while entering book information.
+
+* [ ] Search by ISBN
+* [ ] Search by title
+* [ ] Search by author
+* [ ] Support partial title searches
+* [ ] Support partial author searches
+* [ ] Return multiple candidates
+* [ ] Return title
+* [ ] Return author
+* [ ] Return ISBN
+* [ ] Return page count where available
+* [ ] Return publication information
+* [ ] Return genres/categories where available
+* [ ] Return cover image where available
+* [ ] Allow user to select a result
+* [ ] Populate Book data from selected result
+* [ ] Handle no results
 * [ ] Handle API errors
-* [ ] Prevent API failures from affecting existing data
-* [ ] Add API integration tests
+* [ ] Handle incomplete metadata
+* [ ] Prevent accidental duplicate books
+* [ ] Add automated tests
 
 **Outcome:**
 
-A user can provide an ISBN and automatically retrieve available book information.
+The user can enter an ISBN, title, or author and select a matching external book record rather than manually entering all available metadata.
 
 ---
 
@@ -227,6 +358,8 @@ A user can provide an ISBN and automatically retrieve available book information
 * [ ] Average rating
 * [ ] Total pages read
 * [ ] Average book length
+* [ ] Shortest book
+* [ ] Longest book
 * [ ] Total reading time
 * [ ] Average reading-session duration
 
@@ -235,7 +368,7 @@ A user can provide an ISBN and automatically retrieve available book information
 * [ ] Books read by genre
 * [ ] Books owned by genre
 * [ ] Average rating by genre
-* [ ] Pages by genre
+* [ ] Pages read by genre
 * [ ] Reading time by genre
 * [ ] Genre trends
 
@@ -255,6 +388,14 @@ A user can provide an ISBN and automatically retrieve available book information
 * [ ] Average rating by author
 * [ ] Reading time by author
 
+### Series analysis
+
+* [ ] Books read by series
+* [ ] Series completion
+* [ ] Series currently in progress
+* [ ] Average rating by series
+* [ ] Reading time by series
+
 ### Time analysis
 
 * [ ] Books per month
@@ -273,7 +414,7 @@ Book Brain can meaningfully analyse the user's reading behaviour.
 
 # Phase 7 — Power BI Analytics
 
-**Goal:** Set analythics in the application.
+**Goal:** Create a professional analytical layer using Book Brain's data.
 
 * [ ] Define analytical dataset
 * [ ] Export data from SQLite
@@ -284,6 +425,7 @@ Book Brain can meaningfully analyse the user's reading behaviour.
 * [ ] Create book-length analysis
 * [ ] Create rating analysis
 * [ ] Create author analysis
+* [ ] Create series analysis
 * [ ] Create reading-time analysis
 * [ ] Create yearly summary
 * [ ] Document analytical findings
@@ -299,28 +441,48 @@ Book Brain demonstrates both software development and professional data analytic
 
 # Phase 8 — Recommendation Engine
 
-**Goal:** Build Book Brain's own recommendation system before introducing an LLM.
+**Goal:** Build Book Brain's own recommendation system before introducing a conversational LLM.
 
-This phase is particularly important.
+The recommendation engine must be capable of producing recommendations independently of an LLM.
 
-The recommendation engine should be capable of producing recommendations without an AI language model.
-
-### Step 1 — Rule-Based Recommendations
+### Issue — Define recommendation algorithm
 
 * [ ] Define recommendation inputs
 * [ ] Define recommendation contexts
+* [ ] Define candidate selection
+* [ ] Define exclusion rules
+* [ ] Define ranking factors
+* [ ] Define scoring system
+* [ ] Define context-specific weighting
+* [ ] Define recommendation explanations
+* [ ] Define evaluation methodology
+
+### Issue — Implement recommendation engine
+
+#### Candidate filtering
+
+* [ ] Filter by ownership
+* [ ] Filter by TBR status
+* [ ] Filter by reading status
+* [ ] Filter previously completed books where appropriate
+* [ ] Filter by genre
+* [ ] Filter by author
+* [ ] Filter by page count
+* [ ] Filter by series constraints
+* [ ] Apply explicit user exclusions
+
+#### Preference matching
+
 * [ ] Implement genre matching
 * [ ] Implement author matching
 * [ ] Implement rating-based preference
-* [ ] Implement ownership filtering
-* [ ] Implement TBR filtering
-* [ ] Implement reading-status filtering
 * [ ] Implement page-count preferences
-* [ ] Implement exclusion rules
+* [ ] Implement historical reading preference
+* [ ] Implement series-aware recommendations
 
-### Step 2 — Context-Aware Recommendations
+#### Context-aware recommendations
 
-Implement different recommendation behaviour for contexts such as:
+Support contexts including:
 
 * [ ] General recommendation
 * [ ] Beach reading
@@ -329,37 +491,105 @@ Implement different recommendation behaviour for contexts such as:
 * [ ] Long reading session
 * [ ] Bookshop visit
 * [ ] Mood-based recommendation
+* [ ] Surprise me
 
-### Step 3 — Recommendation Ranking
+For example, a beach-read request should prioritise:
 
-* [ ] Create scoring system
-* [ ] Weight recommendation factors
+1. Books already owned.
+2. Unread/TBR books.
+3. Suitable genres.
+4. Historical preferences.
+5. Shorter books.
+
+A preference for approximately **100–150 pages** should be treated as a weighting rather than an absolute rule.
+
+#### Ranking
+
 * [ ] Rank candidate books
-* [ ] Implement context-specific weighting
-* [ ] Generate recommendation explanations
+* [ ] Implement context-specific scoring
 * [ ] Log recommendation factors
+* [ ] Generate structured recommendation explanations
 
-### Step 4 — Evaluation
+#### Evaluation
 
 * [ ] Create recommendation test cases
 * [ ] Test ownership constraints
 * [ ] Test exclusion rules
 * [ ] Test page-length preferences
 * [ ] Test genre matching
+* [ ] Test series constraints
 * [ ] Evaluate recommendation quality
 * [ ] Document limitations
 
 **Outcome:**
 
-Book Brain can independently determine which books are appropriate recommendations.
+Book Brain can independently determine which books from the user's collection are appropriate recommendations.
 
 ---
 
-# Phase 9 — Semantic Search and Embeddings
+# Phase 9 — External Recommendation Candidate Discovery
 
-**Goal:** Allow Book Brain to understand similarity between books beyond simple genre labels.
+**Goal:** Allow Book Brain to discover books outside the user's library for situations where the user is willing to acquire a book.
 
-This phase introduces a new form of AI without yet requiring a conversational LLM.
+This is deliberately separate from the external metadata search used when adding books.
+
+For example:
+
+> "I'm going to the bookshop. Have you got any must-buys for me?"
+
+The flow should be:
+
+```text
+External book catalogue
+        ↓
+Potential books
+        ↓
+Remove books already owned
+        ↓
+Apply user exclusions
+        ↓
+Apply genre/preferences
+        ↓
+Compare with reading history
+        ↓
+Recommendation Engine
+        ↓
+AI explains recommendations
+```
+
+### Issue — External recommendation candidate discovery
+
+* [ ] Define external recommendation requirements
+* [ ] Search external book catalogues
+* [ ] Search by relevant genres/categories
+* [ ] Search by authors
+* [ ] Search by keywords
+* [ ] Retrieve candidate metadata
+* [ ] Retrieve page counts where available
+* [ ] Retrieve publication information
+* [ ] Retrieve cover information
+* [ ] Exclude books already owned
+* [ ] Exclude books already read where appropriate
+* [ ] Apply user exclusions
+* [ ] Apply genre preferences
+* [ ] Apply author preferences
+* [ ] Apply book-length preferences
+* [ ] Pass candidates to recommendation engine
+* [ ] Rank candidates
+* [ ] Return recommendation candidates
+* [ ] Add automated tests
+
+**Outcome:**
+
+Book Brain can discover books that are not currently in the user's library and provide them to the recommendation engine for evaluation.
+
+---
+
+# Phase 10 — Semantic Search and Embeddings
+
+**Goal:** Improve book similarity beyond simple metadata matching.
+
+This phase introduces semantic AI without requiring a conversational LLM.
 
 * [ ] Learn what embeddings are
 * [ ] Select an embedding model
@@ -371,54 +601,94 @@ This phase introduces a new form of AI without yet requiring a conversational LL
 * [ ] Evaluate results
 * [ ] Document embedding architecture
 
-### Possible future technologies
+Possible future technologies include:
 
 * Local embedding models
 * PostgreSQL + pgvector
 * Chroma
 * Qdrant
 
-The project should not introduce a separate vector database unless there is a practical reason to do so.
+A separate vector database should not be introduced unless there is a practical reason to do so.
 
 **Outcome:**
 
-Book Brain can understand semantic relationships between books and use them in recommendations.
+Book Brain can understand semantic relationships between books and use them as an additional recommendation signal.
 
 ---
 
-# Phase 10 — AI Librarian
+# Phase 11 — AI Librarian
 
 **Goal:** Add natural-language interaction without surrendering control of the application to the LLM.
 
-### LLM research
+## Issue — Design AI architecture
 
-* [ ] Research local LLMs
-* [ ] Research external LLM APIs
-* [ ] Compare model capabilities
-* [ ] Compare cost
-* [ ] Compare privacy
-* [ ] Compare hardware requirements
-* [ ] Select initial model/provider
-* [ ] Document decision
+Before implementation:
+
+* [ ] Define LLM responsibilities
+* [ ] Define recommendation-engine responsibilities
+* [ ] Define database access
+* [ ] Define tools/functions available to AI
+* [ ] Define safety boundaries
+* [ ] Define hallucination controls
+* [ ] Select initial LLM
+* [ ] Document architecture
+
+The key principle is:
+
+```text
+                     USER
+                       │
+                       ▼
+                     LLM
+                       │
+              Understand request
+                       │
+                       ▼
+              Book Brain tools
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+       Database    Statistics   Recommender
+```
+
+The LLM does not decide what books exist.
+
+It asks Book Brain.
+
+---
+
+## Issue — Implement AI librarian
 
 ### Initial LLM integration
 
-* [ ] Set up selected LLM
-* [ ] Implement basic prompts
-* [ ] Implement structured responses
+* [ ] Connect selected LLM
+* [ ] Implement conversation handling
+* [ ] Implement prompt/system instructions
+* [ ] Implement structured request handling
 * [ ] Test natural-language understanding
 
-### Library-aware AI
+### Library queries
 
-* [ ] Connect LLM to application data
-* [ ] Implement natural-language library queries
-* [ ] Implement statistics queries
-* [ ] Implement recommendation queries
-* [ ] Prevent hallucinated library information
+* [ ] Query books
+* [ ] Query TBR
+* [ ] Query current reading
+* [ ] Query reading history
+* [ ] Query ratings
+* [ ] Query notes where appropriate
+* [ ] Query series
+* [ ] Query reading statistics
 
-### Context extraction
+### Recommendation integration
 
-The LLM should be able to transform requests such as:
+* [ ] Pass user intent to recommendation engine
+* [ ] Pass constraints to recommendation engine
+* [ ] Retrieve ranked recommendations
+* [ ] Allow LLM to explain recommendations
+* [ ] Prevent LLM from inventing recommendation candidates
+
+### Context understanding
+
+The LLM should be able to transform:
 
 > "I'm going to the beach today. Give me something short and dark."
 
@@ -432,14 +702,21 @@ preferred_length = short
 genre_preference = dark
 ```
 
-### AI recommendation flow
+### Clarification
 
-* [ ] LLM interprets request
-* [ ] Application validates constraints
-* [ ] Recommendation engine searches candidates
-* [ ] Recommendation engine ranks candidates
-* [ ] LLM explains results
-* [ ] Test complete conversation flow
+* [ ] Detect materially ambiguous requests
+* [ ] Ask appropriate clarification questions
+* [ ] Avoid unnecessary clarification
+
+### Evaluation
+
+* [ ] Test factual accuracy
+* [ ] Test ownership awareness
+* [ ] Test recommendation constraints
+* [ ] Test hallucination resistance
+* [ ] Test tool failures
+* [ ] Evaluate response quality
+* [ ] Document limitations
 
 **Outcome:**
 
@@ -447,17 +724,21 @@ The user can talk naturally to Book Brain while the application remains responsi
 
 ---
 
-# Phase 11 — RAG and Tool Calling
+# Phase 12 — RAG and Tool Calling
 
 **Goal:** Turn the LLM into a controlled AI interface for Book Brain.
 
+RAG and tool calling should only be introduced where they provide a practical benefit.
+
 ### Retrieval
 
+* [ ] Identify information requiring retrieval
 * [ ] Implement retrieval of relevant library data
 * [ ] Implement statistics retrieval
 * [ ] Implement recommendation retrieval
 * [ ] Investigate RAG architecture
-* [ ] Evaluate when RAG is useful versus direct SQL
+* [ ] Compare RAG with direct structured queries
+* [ ] Determine where semantic retrieval is useful
 
 ### Tools
 
@@ -487,39 +768,57 @@ search_external_books()
 
 **Outcome:**
 
-Book Brain has a controlled AI assistant capable of retrieving information and using application functionality.
+Book Brain has a controlled AI assistant capable of retrieving information and using approved application functionality.
 
 ---
 
-# Phase 12 — Web Application
+# Phase 13 — Web Application
 
 **Goal:** Make Book Brain accessible through a proper user interface.
 
-### Backend
+The FastAPI backend should become the shared interface between Book Brain's data/business logic and future clients.
+
+## Issue — Build FastAPI backend
 
 * [ ] Design REST API
-* [ ] Implement FastAPI
+* [ ] Implement FastAPI application
+* [ ] Configure database access
 * [ ] Create book endpoints
+* [ ] Create library endpoints
 * [ ] Create reading endpoints
+* [ ] Create reading-session endpoints
+* [ ] Create search endpoints
 * [ ] Create statistics endpoints
 * [ ] Create recommendation endpoints
 * [ ] Create AI endpoints
 * [ ] Add API validation
+* [ ] Handle API errors
 * [ ] Add API tests
+* [ ] Add API documentation
 
-### Frontend
+**Outcome:**
 
-* [ ] Design interface
+Book Brain has a functional backend API that can be used by web and future mobile clients.
+
+---
+
+## Issue — Build web frontend
+
+* [ ] Design application layout
 * [ ] Create library view
 * [ ] Create book details
+* [ ] Create book creation/editing
 * [ ] Create search
 * [ ] Create filters
 * [ ] Create TBR interface
-* [ ] Create reading tracker
+* [ ] Create reading-status controls
+* [ ] Create reading-session controls
 * [ ] Create statistics dashboard
 * [ ] Create recommendation interface
 * [ ] Create AI librarian interface
+* [ ] Connect frontend to FastAPI
 * [ ] Implement responsive design
+* [ ] Test frontend/backend integration
 
 Potential technologies:
 
@@ -537,14 +836,14 @@ Book Brain becomes a genuinely usable web application.
 
 ---
 
-# Phase 13 — Mobile Application
+# Phase 14 — Mobile Application
 
 **Goal:** Make Book Brain practical when physically browsing books.
 
 * [ ] Design mobile interface
 * [ ] Select mobile framework
 * [ ] Implement mobile client
-* [ ] Connect mobile app to backend
+* [ ] Connect mobile app to FastAPI
 * [ ] Implement library
 * [ ] Implement book search
 * [ ] Implement barcode scanning
@@ -555,6 +854,7 @@ Book Brain becomes a genuinely usable web application.
 * [ ] Implement statistics
 * [ ] Implement recommendations
 * [ ] Implement AI librarian
+* [ ] Test mobile/backend integration
 
 Potential technology:
 
@@ -566,11 +866,31 @@ Book Brain can be used conveniently from a phone.
 
 ---
 
-# Phase 14 — Wearable Integration
+# Phase 15 — Wearable Integration
 
-**Goal:** Investigate and potentially implement automatic reading-session tracking.
+**Goal:** Investigate and potentially implement wearable-based reading-session tracking.
 
-### Research
+Wearable functionality is an **additional source of Reading Session data**, not the foundation of reading-session tracking.
+
+The application should already support:
+
+```text
+Manual Start/Stop
+        ↓
+Reading Session
+```
+
+before wearable integration is attempted.
+
+A wearable would provide an additional path:
+
+```text
+Fitbit Start/Stop
+        ↓
+Reading Session
+```
+
+## Issue — Investigate wearable integration
 
 * [ ] Investigate Fitbit developer platform
 * [ ] Investigate available APIs
@@ -580,23 +900,34 @@ Book Brain can be used conveniently from a phone.
 * [ ] Investigate data synchronisation
 * [ ] Investigate platform restrictions
 * [ ] Investigate privacy implications
+* [ ] Determine whether custom Start/Stop Reading functionality is possible
+* [ ] Determine whether direct communication with Book Brain is possible
+* [ ] Determine whether a mobile companion application is required
+* [ ] Determine how sessions would be associated with books
+* [ ] Determine how unassigned sessions would work
+* [ ] Determine duplicate-session handling
 * [ ] Determine technical feasibility
+* [ ] Document decision
 
-### Prototype
+## Issue — Implement wearable reading sessions
 
-If technically feasible:
+Only proceed if the investigation determines that implementation is practical.
 
 * [ ] Create wearable reading activity
 * [ ] Implement Start Reading
 * [ ] Implement Stop Reading
-* [ ] Record start time
-* [ ] Record end time
-* [ ] Synchronise with Book Brain
-* [ ] Detect duplicate sessions
-* [ ] Associate with current book
+* [ ] Record session start
+* [ ] Record session end
+* [ ] Calculate duration
+* [ ] Synchronise session with Book Brain
+* [ ] Identify session source
+* [ ] Associate session with current book where possible
 * [ ] Support unassigned sessions
+* [ ] Prevent duplicate sessions
+* [ ] Allow session correction
+* [ ] Add integration tests
 
-### Fallback
+## Fallback
 
 If direct Fitbit integration is not practical:
 
@@ -610,7 +941,7 @@ Book Brain can potentially track reading time through a wearable without requiri
 
 ---
 
-# Phase 15 — Deployment
+# Phase 16 — Deployment
 
 **Goal:** Make Book Brain accessible outside the development environment.
 
@@ -622,7 +953,7 @@ Book Brain can potentially track reading time through a wearable without requiri
 * [ ] Implement backups
 * [ ] Configure logging
 * [ ] Configure monitoring
-* [ ] Implement error handling
+* [ ] Implement production error handling
 * [ ] Document deployment
 * [ ] Create production README
 * [ ] Test production environment
@@ -635,7 +966,7 @@ Book Brain is accessible remotely.
 
 ---
 
-# Phase 16 — Portfolio Release
+# Phase 17 — Portfolio Release
 
 **Goal:** Turn Book Brain into a polished professional portfolio project.
 
@@ -673,7 +1004,6 @@ These features are intentionally outside the current development roadmap.
 * [ ] Reading goals
 * [ ] Reading challenges
 * [ ] Reading streaks
-* [ ] Mood-based recommendations
 * [ ] AI-generated reading lists
 * [ ] Public/private libraries
 * [ ] Multiple users
@@ -781,14 +1111,52 @@ while:
 ```text
 "I'm going to the bookshop."
         ↓
-Prioritise books not already owned
+Allow recommendations for books not already owned
 ```
 
 The recommendation engine should explicitly model these differences rather than expecting the LLM to handle them implicitly.
 
 ---
 
-## Principle 7 — Don't Overengineer Early
+## Principle 7 — External Data Has Multiple Roles
+
+External book data serves more than one purpose.
+
+### Book entry
+
+External data helps the user:
+
+```text
+Type title / author / ISBN
+        ↓
+Find matching books
+        ↓
+Select correct edition
+        ↓
+Populate metadata
+```
+
+### Book discovery
+
+Later, external data can help:
+
+```text
+User wants to buy a book
+        ↓
+Search external catalogue
+        ↓
+Find candidates
+        ↓
+Exclude owned books
+        ↓
+Recommendation Engine
+```
+
+These functions should remain logically separate.
+
+---
+
+## Principle 8 — Don't Overengineer Early
 
 SQLite is sufficient for the initial application.
 
@@ -796,7 +1164,7 @@ A vector database, PostgreSQL, cloud infrastructure, mobile application, wearabl
 
 ---
 
-## Principle 8 — Every Major Feature Should Teach Something
+## Principle 9 — Every Major Feature Should Teach Something
 
 Book Brain is both a useful application and a learning project.
 
@@ -809,7 +1177,11 @@ SQL
   ↓
 Database design
   ↓
+Testing
+  ↓
 APIs
+  ↓
+External data integration
   ↓
 Data analysis
   ↓
@@ -821,15 +1193,43 @@ Embeddings
   ↓
 LLMs
   ↓
-RAG
+RAG / retrieval
   ↓
 Tool calling
   ↓
 AI agents
+  ↓
+FastAPI
   ↓
 Web development
   ↓
 Mobile development
   ↓
 Device integration
+  ↓
+Deployment
 ```
+
+---
+
+# Definition of Progress
+
+Book Brain should be considered successful at each stage when the corresponding functionality is **working, tested, documented, and demonstrable**, rather than merely designed.
+
+The project should therefore favour:
+
+```text
+Design
+   ↓
+Implement
+   ↓
+Test
+   ↓
+Document
+   ↓
+Demonstrate
+   ↓
+Move forward
+```
+
+rather than continuously expanding the scope before earlier functionality is complete.
