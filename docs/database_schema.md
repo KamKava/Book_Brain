@@ -1657,13 +1657,13 @@ Or, conceptually:
 │  Genres   │───────│   Books   │───────│  Series   │
 └─────┬─────┘       └─────┬─────┘       └─────┬─────┘
       │                   │                   │
- BookGenres       ┌────────┼────────┐    SeriesBooks
-                  │        │        │
-                  ▼        ▼        ▼
-             LibraryEntry  Notes  ReadingRecord
-                   │                 │
-                   ▼                 ▼
-                Format        ReadingSession
+BookGenres       ┌────────┼────────┐    SeriesBooks
+                 │        │        │
+                 ▼        ▼        ▼
+          LibraryEntry  Notes  ReadingRecord
+                 │                 │
+                 ▼                 ▼
+              Format        ReadingSession
 ```
 
 The database therefore has a deliberately small core.
