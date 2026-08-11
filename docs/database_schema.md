@@ -1656,10 +1656,10 @@ Or, conceptually:
 ┌───────────┐       ┌───────────┐       ┌───────────┐
 │  Genres   │───────│   Books   │───────│  Series   │
 └─────┬─────┘       └─────┬─────┘       └─────┬─────┘
-      │                    │                   │
+      │                   │                   │
  BookGenres       ┌────────┼────────┐    SeriesBooks
-                   │        │        │
-                   ▼        ▼        ▼
+                  │        │        │
+                  ▼        ▼        ▼
              LibraryEntry  Notes  ReadingRecord
                    │                 │
                    ▼                 ▼
