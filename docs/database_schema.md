@@ -174,25 +174,34 @@ created_at
 The core relationships are:
 
 ```text
-                         ┌─────────────┐
-                         │   authors   │
-                         └──────┬──────┘
+                         ┌──────────────┐
+                         │   AUTHORS    │
+                         └──────┬───────┘
                                 │
-                           book_authors
                                 │
-                                ▼
-┌─────────────┐          ┌─────────────┐          ┌─────────────┐
-│   genres    │──────────│    books    │──────────│   series    │
-└──────┬──────┘ book_genres └──────┬──────┘ series_books └───────┘
-       │                           │
-       │              ┌────────────┼─────────────┐
-       │              │            │             │
-       │              ▼            ▼             ▼
-       │       library_entries   notes    reading_records
-       │              │                         │
-       │              ▼                         ▼
-       │           formats              reading_sessions
-       │
+                         ┌──────▼───────┐
+                         │ BOOK_AUTHORS │
+                         └──────┬───────┘
+                                │
+                                │
+┌──────────────┐         ┌──────▼───────┐         ┌──────────────┐
+│    GENRES    │         │    BOOKS     │         │   SERIES     │
+└──────┬───────┘         │              │         └──────┬───────┘
+       │                 │ PK book_id   │                │
+       │                 │    isbn13    │         ┌──────▼───────┐
+┌──────▼───────┐         │    isbn10    │         │ SERIES_BOOKS │
+│ BOOK_GENRES  │◄────────│    title     │────────►│              │
+└──────────────┘         │    ...       │         └──────────────┘
+                         └──────┬───────┘
+                                │
+                   ┌────────────┼─────────────┐
+                   │            │             │
+                   ▼            ▼             ▼
+            library_entries   notes    reading_records
+                   │                         │
+                   ▼                         ▼
+                formats              reading_sessions
+
 ```
 
 The most important application relationship is:
