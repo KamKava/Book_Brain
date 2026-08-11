@@ -1,7 +1,7 @@
 # Book Brain — Software Requirements Specification
 
 **Project status:** Initial development
-**Version:** 0.1
+**Version:** 0.2
 **Last updated:** August 2026
 
 ---
@@ -10,67 +10,206 @@
 
 Book Brain is a personal book management, reading-tracking, analytics, recommendation, and AI librarian application.
 
-The application is designed to help users:
+The application is designed to help a user:
 
 * Catalogue books they own.
 * Manage their TBR collection.
 * Track books they are currently reading.
 * Record completed books and ratings.
-* Track reading dates and reading time.
-* Analyse their reading habits.
+* Track reading dates and reading sessions.
+* Record reading notes.
+* Analyse reading habits.
 * Discover books already available in their collection.
-* Identify books they may wish to purchase.
+* Identify books they may wish to acquire.
 * Eventually interact with an AI librarian through natural language.
-* Potentially track reading sessions through wearable devices such as Fitbit.
+* Potentially track reading sessions through wearable devices.
 
-The application will begin as a small Python and SQLite project and progressively develop into a full application with external book APIs, analytics, recommendation functionality, conversational AI, a web interface, wearable integrations, and eventually a mobile application.
+Book Brain will begin as a local Python and SQLite application. It will progressively evolve through additional development phases rather than implementing the complete long-term vision at once.
 
-The project is intended to be both a genuinely useful personal application and a professional software engineering, database, data analytics, API, AI, and integration portfolio project.
+Potential future functionality includes:
+
+* External book metadata APIs.
+* Barcode/ISBN scanning.
+* Advanced analytics.
+* Personalised recommendations.
+* Semantic search.
+* Conversational AI.
+* A web application.
+* A mobile application.
+* Wearable integration.
+* Remote access and multi-user support.
+
+The project is intended to be both a genuinely useful personal application and a portfolio project demonstrating skills in:
+
+* Software engineering.
+* Database design.
+* SQL.
+* Data modelling.
+* Data analysis.
+* API integration.
+* Recommendation systems.
+* Artificial intelligence.
+* Web development.
+* Mobile development.
+* Testing.
+* Deployment.
+* Technical documentation.
 
 ---
 
 # 2. Project Goals
 
-The application aims to:
+The primary goals of Book Brain are to:
 
-1. Provide a reliable digital catalogue of books owned by the user.
-2. Minimise manual data entry through ISBN lookup and barcode scanning.
-3. Allow users to manage their TBR list and reading history.
-4. Track ratings, reading dates, notes, formats, and reading sessions.
-5. Track the amount of time spent reading.
-6. Provide meaningful statistics about reading habits.
-7. Allow users to explore reading habits by genre, author, length, rating, time period, and reading time.
-8. Provide recommendations based on the user's actual library and reading behaviour.
-9. Distinguish between books the user already owns and books they would need to acquire.
-10. Provide context-aware recommendations based on what the user wants to do.
-11. Develop a personalised recommendation system.
-12. Eventually provide a conversational AI librarian.
-13. Investigate wearable integration for automatic reading-session tracking.
-14. Provide web and mobile access in future versions.
-15. Demonstrate professional software engineering, database, data analysis, API, integration, and AI development practices.
-16. Allow users to retain control of and export their personal library data.
+1. Provide a reliable digital catalogue of the user's books.
+2. Separate information about books and editions from the user's ownership of those books.
+3. Minimise manual data entry through ISBN lookup and, eventually, barcode scanning.
+4. Allow the user to manage their TBR collection and reading history.
+5. Track reading status, ratings, dates, notes, formats, and reading sessions.
+6. Track the amount of time spent reading.
+7. Provide meaningful statistics about reading habits.
+8. Allow reading habits to be analysed by genre, author, length, rating, time period, and reading time.
+9. Provide recommendations based on the user's actual library and reading behaviour.
+10. Distinguish between books that are already available to the user and books that require acquisition.
+11. Support context-aware recommendations.
+12. Develop a recommendation engine independently from the conversational AI.
+13. Eventually provide a conversational AI librarian.
+14. Investigate wearable integration for reading-session tracking.
+15. Provide web and mobile access in future versions.
+16. Allow the user to retain control of and export their personal library data.
+17. Provide a modular architecture that can evolve without unnecessarily rewriting the core application.
 
 ---
 
 # 3. Development Philosophy
 
-The application shall be developed incrementally.
+## 3.1 Incremental Development
 
-The project shall begin with a small, functional core rather than attempting to implement all planned functionality simultaneously.
+Book Brain shall be developed incrementally.
 
-Future functionality shall be added only after the underlying functionality is stable and tested.
+The project shall begin with a small, functional core and introduce additional functionality only when the underlying components are sufficiently stable and tested.
 
-The database shall be treated as the central source of truth for the user's library, reading history, and reading-session data.
+Future functionality shall not be implemented solely because it is part of the long-term vision.
 
-The recommendation engine shall use structured application data to determine appropriate recommendation candidates.
+Each development phase should introduce functionality that provides a meaningful benefit to the application.
 
-The conversational AI shall not be treated as the authoritative source of information about the user's library.
+---
 
-The architecture should avoid unnecessary dependencies between core functionality and optional external services.
+## 3.2 Database as the Source of Truth
 
-External integrations should be designed so that failure of an optional service does not prevent the core application from functioning.
+The application database shall be the authoritative source for the user's personal library information.
 
-Technical decisions that materially affect architecture, cost, privacy, security, maintainability, or future development shall be documented.
+This includes:
+
+* Books.
+* Editions.
+* Ownership.
+* Library status.
+* Reading history.
+* Ratings.
+* Reading dates.
+* Reading sessions.
+* Notes.
+* User preferences where applicable.
+
+External APIs may provide metadata, but they shall not become the authoritative source for the user's personal data.
+
+AI-generated information shall not override authoritative application data.
+
+---
+
+## 3.3 Separation of Responsibilities
+
+The system shall separate responsibilities between application components.
+
+The intended responsibilities are:
+
+```text
+Database
+    Stores persistent application data
+
+Repositories
+    Retrieve and persist data
+
+Services
+    Implement business rules
+
+Recommendation Engine
+    Filters, scores and ranks candidates
+
+API
+    Exposes application functionality
+
+Frontend
+    Provides user interaction
+
+Analytics
+    Calculates and presents reading statistics
+
+LLM
+    Interprets natural language and communicates results
+
+External APIs
+    Provide optional external data
+
+Wearable integrations
+    Provide optional activity/session data
+```
+
+Core application functionality should not depend unnecessarily on optional components.
+
+---
+
+## 3.4 AI Should Enhance Rather Than Replace Application Logic
+
+The AI system shall not be responsible for deterministic business rules.
+
+For example, if the user asks:
+
+> "Give me something short that I already own for the beach."
+
+The AI may interpret:
+
+```text
+context = beach
+availability = owned
+status = unread
+preferred_length = short
+```
+
+The application shall then determine which books actually satisfy those requirements.
+
+The intended flow is:
+
+```text
+User request
+     ↓
+LLM interprets request
+     ↓
+Structured request / constraints
+     ↓
+Application logic
+     ↓
+Database query
+     ↓
+Candidate books
+     ↓
+Recommendation engine
+     ↓
+Ranked results
+     ↓
+LLM explains results
+```
+
+The recommendation engine shall remain usable without an LLM.
+
+---
+
+## 3.5 External Services Are Optional Dependencies
+
+External services such as book metadata APIs, AI providers, wearable platforms, and future cloud services shall not be required for core library functionality.
+
+Failure of an external service should not result in loss of existing application data.
 
 ---
 
@@ -80,172 +219,357 @@ Technical decisions that materially affect architecture, cost, privacy, security
 
 The Minimum Viable Product shall provide:
 
-* A SQLite database.
-* Book creation.
-* Book retrieval.
-* Book updating.
-* Book deletion.
+* SQLite database.
+* Book and edition data management.
+* Library ownership records.
+* Basic CRUD functionality.
 * Basic book search.
 * Reading status.
 * Ratings.
 * Reading dates.
 * Reading notes.
+* Reading sessions.
 * Basic reading statistics.
-* Basic reading-session support.
-* Basic automated tests.
+* Automated tests.
 * Basic data export.
 
-The initial MVP will operate without:
+The MVP shall operate locally.
+
+---
+
+## 4.2 Explicitly Out of Scope for MVP
+
+The initial MVP shall not require:
 
 * Graphical frontend.
+* FastAPI.
+* Web application.
+* Mobile application.
 * AI.
+* LLM integration.
+* Recommendation engine.
+* Semantic search.
+* Vector database.
 * Barcode scanning.
 * External book APIs.
 * Wearable integration.
 * Cloud deployment.
 * User accounts.
-* Mobile application.
+* Multi-user functionality.
 * Power BI integration.
 
-Reading sessions in the MVP may be entered manually.
+These features may be introduced during later development phases.
 
 ---
 
-# 5. Book Catalogue Requirements
+# 5. Functional Requirements
 
-## FR-001 — Add Book
+# 5.1 Book and Edition Management
 
-The system shall allow the user to add a book to their library.
+Book Brain shall distinguish between a **work/title** and a specific **edition** where necessary.
 
-A book may contain:
+For example:
 
-* ISBN
-* Title
-* Author
-* Publisher
-* Publication date
-* Page count
-* Description
-* Cover image
-* Language
-* Genre/category information
+```text
+Work
+ └── Dracula
 
----
+Editions
+ ├── 1897 edition
+ ├── Penguin paperback
+ └── E-book edition
+```
 
-## FR-002 — Unique Book Identification
+This allows different editions of the same work to exist without treating them as unrelated books.
 
-The system shall assign each book a unique internal identifier.
-
-Where an ISBN is available, the system shall store the ISBN as an additional identifier.
-
-The system should prevent accidental duplication of books with the same ISBN.
-
-Books without an ISBN shall still be supported.
-
-The database design should allow different editions of the same title to exist where appropriate.
+The exact implementation will be defined in the database design.
 
 ---
 
-## FR-003 — View Book
+## FR-001 — Create Book Record
 
-The system shall allow the user to view detailed information about an individual book.
+The system shall allow the user to create a record representing a book/work.
+
+A book record may contain information such as:
+
+* Title.
+* Description.
+* Language.
+* Publication information where appropriate.
+* Genre/category associations.
 
 ---
 
-## FR-004 — Update Book
+## FR-002 — Create Edition Record
+
+The system shall allow a specific edition of a book/work to be recorded.
+
+An edition may contain:
+
+* ISBN-10.
+* ISBN-13.
+* Publisher.
+* Publication date.
+* Page count.
+* Format.
+* Cover image.
+* Edition-specific metadata.
+
+Books without an ISBN shall be supported.
+
+---
+
+## FR-003 — Unique Internal Identification
+
+The system shall assign a unique internal identifier to each major entity.
+
+Internal identifiers shall not depend exclusively on ISBN values.
+
+---
+
+## FR-004 — ISBN Uniqueness
+
+Where an ISBN is available, the system should prevent duplicate ISBN records within the relevant edition data.
+
+Different editions may have different ISBNs.
+
+---
+
+## FR-005 — Author Management
+
+The system shall allow books to be associated with one or more authors.
+
+An author may be associated with multiple books.
+
+The database shall support many-to-many relationships between books and authors where required.
+
+---
+
+## FR-006 — Genre Management
+
+The system shall allow books to be associated with one or more genres or categories.
+
+A genre may be associated with multiple books.
+
+The database shall support many-to-many relationships between books and genres.
+
+---
+
+## FR-007 — View Book
+
+The system shall allow the user to retrieve detailed information about a book and its relevant editions.
+
+---
+
+## FR-008 — Update Book
 
 The system shall allow the user to modify book information.
 
 ---
 
-## FR-005 — Delete Book
+## FR-009 — Update Edition
 
-The system shall allow the user to remove a book from their library.
+The system shall allow the user to modify edition-specific information.
+
+---
+
+## FR-010 — Delete Book or Edition
+
+The system shall allow the user to remove book or edition information where appropriate.
 
 The application should request confirmation before permanent deletion.
 
-Deleting a book should not unintentionally delete unrelated reading history or other data.
+Deletion shall respect relationships with library and reading records.
+
+The system should prevent accidental deletion of historical data where doing so would compromise data integrity.
 
 ---
 
-# 6. Reading Management
+# 6. Library Management
 
-## FR-006 — Reading Status
+The user's relationship with a book shall be stored separately from general book metadata.
 
-The system shall allow the user to assign a reading status.
+For example:
+
+```text
+Book
+ └── Dracula
+
+Library Entry
+ ├── User owns Dracula
+ ├── Status: TBR
+ └── Format: Paperback
+```
+
+This separation allows the same book to exist independently of whether the user owns it.
+
+---
+
+## FR-011 — Add Book to Library
+
+The system shall allow the user to add an edition/book to their personal library.
+
+---
+
+## FR-012 — Ownership
+
+The system shall record whether a book/edition is currently owned by the user.
+
+---
+
+## FR-013 — Library Status
+
+The system shall allow the user to assign a library/reading status.
 
 Initial statuses shall include:
 
-* TBR
-* Currently Reading
-* Read
+* TBR.
+* Currently Reading.
+* Read.
 
-Additional statuses may be added later.
+The status model may evolve as requirements become clearer.
 
 ---
 
-## FR-007 — Rating
+## FR-014 — Multiple Formats
+
+The system shall support ownership of different editions or formats of the same work where appropriate.
+
+For example, a user may own:
+
+* Paperback.
+* E-book.
+* Audiobook.
+
+These shall not unnecessarily be treated as the same physical item.
+
+---
+
+## FR-015 — View Personal Library
+
+The system shall allow the user to retrieve their personal library.
+
+---
+
+## FR-016 — Remove From Library
+
+The system shall allow the user to remove a book/edition from their personal library.
+
+Historical reading information should not be unintentionally destroyed when an ownership record is removed.
+
+---
+
+# 7. Reading Management
+
+Reading information shall be represented separately from general book metadata and ownership.
+
+This allows the application to distinguish between:
+
+```text
+Book
+    Dracula
+
+Library Entry
+    User owns Dracula
+
+Reading Record
+    User read Dracula
+
+Reading Sessions
+    20 minutes
+    35 minutes
+    45 minutes
+```
+
+---
+
+## FR-017 — Reading Status
+
+The system shall allow the user to indicate whether a book is:
+
+* TBR.
+* Currently Reading.
+* Read.
+
+The system may support additional states in future versions.
+
+---
+
+## FR-018 — Rating
 
 The system shall allow the user to rate a completed book using a five-point rating system.
 
 Ratings shall be optional.
 
-The system shall validate that ratings fall within the permitted range.
+Ratings shall be validated against the permitted range.
 
 ---
 
-## FR-008 — Reading Dates
+## FR-019 — Reading Start Date
 
-The system shall allow the user to record:
-
-* Date started.
-* Date finished.
-
-These fields shall be optional.
-
-The system should validate that reading dates are logically consistent.
+The system shall allow the user to record when they started reading a book.
 
 ---
 
-## FR-009 — Reading Notes
+## FR-020 — Reading Finish Date
 
-The system shall allow the user to store personal notes associated with a book.
-
----
-
-## FR-010 — Book Format
-
-The system shall allow the user to record the format in which they own or read a book.
-
-Potential values include:
-
-* Hardback
-* Paperback
-* E-book
-* Audiobook
-* Other
-
-The system should allow a book to have more than one format where appropriate.
+The system shall allow the user to record when they finished a book.
 
 ---
 
-# 7. Reading Session Tracking
+## FR-021 — Reading Date Validation
 
-Reading-session tracking shall record the amount of time a user spends reading.
+Where both dates are provided, the system shall ensure that the finish date is not earlier than the start date.
 
-## FR-011 — Start Reading Session
+---
+
+## FR-022 — Reading Notes
+
+The system shall allow the user to store personal notes associated with their reading of a book.
+
+---
+
+## FR-023 — Reading History
+
+The system shall maintain historical reading information where applicable.
+
+The data model should allow the application to distinguish between a book currently being read and a book previously completed.
+
+The possibility of rereading a book should not be prevented by the data model.
+
+---
+
+# 8. Reading Session Tracking
+
+Reading sessions shall represent individual periods of reading activity.
+
+A session may exist independently of a specific book.
+
+This allows:
+
+```text
+Reading Session
+    45 minutes
+    Book: Unknown
+```
+
+to be recorded and associated with a book later.
+
+---
+
+## FR-024 — Start Reading Session
 
 The system shall allow the user to start a reading session.
 
-A reading session shall record at minimum:
+A session shall record:
 
 * Start date and time.
 
-A session may optionally be associated with a specific book.
+A session may optionally be associated with a book.
 
 ---
 
-## FR-012 — End Reading Session
+## FR-025 — End Reading Session
 
 The system shall allow the user to end an active reading session.
 
@@ -254,27 +578,26 @@ The system shall record:
 * End date and time.
 * Session duration.
 
-Duration should be calculated from the recorded start and end times rather than manually entered where possible.
+Duration should be calculated from timestamps rather than manually entered where possible.
 
 ---
 
-## FR-013 — Associate Reading Session With Book
+## FR-026 — Associate Session With Book
 
-A reading session should be associated with a book where the relevant book is known.
+The user shall be able to associate a reading session with a book.
 
-The user should be able to:
+The user shall be able to:
 
-* Select the book before starting a session.
-* Select or change the associated book after a session.
-* Leave a session temporarily unassigned.
-
-This allows reading time to be recorded even when the user does not identify the book at the beginning of a session.
+* Select a book before starting.
+* Select a book after starting.
+* Change the associated book.
+* Leave the session unassigned.
 
 ---
 
-## FR-014 — Reading Session History
+## FR-027 — Reading Session History
 
-The system shall allow the user to view previous reading sessions.
+The system shall allow the user to view historical reading sessions.
 
 Session information may include:
 
@@ -282,21 +605,29 @@ Session information may include:
 * Start time.
 * End time.
 * Duration.
-* Format.
 * Date.
+* Format where available.
 
 ---
 
-## FR-015 — Reading Time Statistics
+## FR-028 — Current Reading Book
 
-The application shall calculate reading-time statistics where sufficient data exists.
+The system should allow the user to identify their current book.
+
+This information may later be used to automatically associate wearable-generated reading sessions.
+
+---
+
+## FR-029 — Reading Time Statistics
+
+The system shall calculate reading-time statistics where sufficient session data exists.
 
 Possible statistics include:
 
 * Total reading time.
 * Reading time per book.
-* Average reading-session duration.
-* Longest reading session.
+* Average session duration.
+* Longest session.
 * Reading time per day.
 * Reading time per week.
 * Reading time per month.
@@ -306,11 +637,11 @@ Possible statistics include:
 
 ---
 
-# 8. Search and Filtering
+# 9. Search and Filtering
 
-## FR-016 — Search
+## FR-030 — Basic Search
 
-The system shall allow users to search their library by:
+The system shall allow the user to search their library by:
 
 * Title.
 * Author.
@@ -318,9 +649,11 @@ The system shall allow users to search their library by:
 
 ---
 
-## FR-017 — Filtering
+## FR-031 — Filtering
 
-The system shall eventually allow users to filter their library by:
+The system shall support filtering by relevant attributes.
+
+Potential filters include:
 
 * Reading status.
 * Genre.
@@ -330,108 +663,161 @@ The system shall eventually allow users to filter their library by:
 * Publication year.
 * Reading year.
 * Format.
+* Ownership.
 * Reading time.
 
-Additional filtering options may be introduced later.
+---
+
+## FR-032 — Combined Filters
+
+The application should allow multiple filters to be applied simultaneously.
+
+For example:
+
+```text
+Owned
++
+Unread
++
+Horror
++
+Under 200 pages
+```
+
+This functionality will become particularly important to the recommendation engine.
 
 ---
 
-# 9. External Book Metadata
+# 10. External Book Metadata
 
-## FR-018 — ISBN Lookup
-
-The system shall eventually allow an ISBN to be submitted to an external book API.
-
-The system shall retrieve available bibliographic information.
-
-The specific API shall be selected based on:
-
-* Availability.
-* Data quality.
-* Usage limits.
-* Licensing.
-* Privacy.
-* Cost.
-* Reliability.
+External metadata services are a future feature.
 
 ---
 
-## FR-019 — Automatic Metadata Population
+## FR-033 — ISBN Lookup
 
-Where information is available, the system should automatically populate:
+A future version shall allow an ISBN to be submitted to an external book metadata service.
+
+---
+
+## FR-034 — Metadata Import
+
+Where available, the system should retrieve:
 
 * Title.
-* Author.
+* Authors.
 * Publisher.
 * Publication date.
 * Page count.
 * Description.
 * Cover.
-* Categories/genres.
+* Categories.
 * Language.
+* ISBN information.
 
-The user shall be able to review and modify imported information.
+Imported data shall be reviewed before becoming part of the user's authoritative library information where appropriate.
 
 ---
 
-## FR-020 — External API Failure Handling
+## FR-035 — Metadata Provenance
+
+The application should record where imported metadata originated.
+
+Potential sources include:
+
+* User.
+* Google Books.
+* Open Library.
+* Other APIs.
+
+The system should distinguish imported data from manually entered data where practical.
+
+---
+
+## FR-036 — External API Failure
 
 The system shall handle:
 
 * Invalid ISBNs.
-* ISBNs not found.
-* API downtime.
+* ISBN not found.
 * Network failures.
+* API downtime.
+* Rate limits.
 * Incomplete metadata.
 * Unexpected API responses.
-* API usage limits.
 
-The application shall not lose existing user data if an external API fails.
-
-External API functionality shall not be required to manage books manually.
+External API failure shall not prevent manual book management.
 
 ---
 
-# 10. Barcode Scanning
+# 11. Barcode Scanning
 
-## FR-021 — Barcode Scanning
-
-A future version shall allow the user to scan an ISBN barcode using a supported camera or barcode scanner.
-
-The scanned ISBN shall be passed to the book metadata lookup process.
-
-The user should be able to scan a book and add it with minimal manual input.
+Barcode scanning is a future feature primarily intended for mobile use.
 
 ---
 
-# 11. Reading Statistics and Analytics
+## FR-037 — ISBN Barcode Scanning
 
-Reading analytics shall be a major feature of the application.
+A future mobile application shall allow the user to scan a supported ISBN barcode.
 
-The system shall collect sufficient structured data to allow meaningful analysis of the user's reading habits.
+The scanned ISBN shall be passed to the metadata lookup process.
 
-## FR-022 — Reading Statistics
+---
+
+## FR-038 — Scan-to-Library Workflow
+
+The intended workflow is:
+
+```text
+Scan barcode
+     ↓
+Extract ISBN
+     ↓
+Retrieve metadata
+     ↓
+Display proposed book information
+     ↓
+User confirms/edits
+     ↓
+Create book/edition
+     ↓
+Add to library
+```
+
+The user shall be able to correct imported information before saving.
+
+---
+
+# 12. Reading Statistics and Analytics
+
+Analytics shall use structured application data.
+
+The application should be capable of producing basic statistics without requiring Power BI.
+
+---
+
+## FR-039 — Basic Statistics
 
 The application shall provide statistics including, where sufficient data exists:
 
 * Total books owned.
 * Total books read.
-* Total books on TBR.
-* Total books currently being read.
-* Books finished during a selected period.
+* Total TBR books.
+* Total currently reading.
+* Books completed during a selected period.
 * Average rating.
 * Total pages read.
 * Average book length.
 * Shortest book read.
 * Longest book read.
 * Total reading time.
-* Average reading-session duration.
+* Average session duration.
 
 ---
 
-## FR-023 — Time-Based Reading Statistics
+## FR-040 — Time-Based Analysis
 
-The system shall allow reading activity to be analysed by:
+The system shall support analysis by:
 
 * Day.
 * Week.
@@ -440,51 +826,49 @@ The system shall allow reading activity to be analysed by:
 * Year.
 * Custom date range.
 
-Statistics may include:
+Possible metrics include:
 
-* Books completed per month.
-* Books completed per year.
-* Pages read per month.
-* Pages read per year.
-* Reading time per month.
-* Reading time per year.
-* Average rating over time.
+* Books completed.
+* Pages read.
+* Reading time.
+* Average rating.
+* Average book length.
 
 ---
 
-## FR-024 — Genre Analysis
+## FR-041 — Genre Analysis
 
-The system shall provide statistics relating to genres/categories.
+The system shall support analysis by genre/category.
 
-Possible statistics include:
+Possible metrics include:
 
-* Number of books read per genre.
-* Number of books owned per genre.
+* Books read per genre.
+* Books owned per genre.
 * Average rating by genre.
 * Pages read by genre.
 * Reading time by genre.
-* Percentage of reading represented by each genre.
+* Percentage of reading by genre.
 * Genre trends over time.
 
-The system should support books associated with multiple genres.
+Books may belong to multiple genres.
 
 ---
 
-## FR-025 — Book Length Analysis
+## FR-042 — Book Length Analysis
 
-The application shall allow users to analyse reading habits by book length.
+The system shall support analysis by page count.
 
-Possible statistics include:
+Possible metrics include:
 
 * Average page count.
 * Median page count.
-* Distribution of book lengths.
-* Number of books below selected page thresholds.
-* Number of books above selected page thresholds.
-* Average rating by book length.
-* Reading time by book length.
+* Book-length distribution.
+* Books below a selected threshold.
+* Books above a selected threshold.
+* Average rating by length.
+* Reading time by length.
 
-Possible page-length categories may include:
+Potential categories include:
 
 * Under 100 pages.
 * 100–199 pages.
@@ -493,77 +877,68 @@ Possible page-length categories may include:
 * 400–499 pages.
 * 500+ pages.
 
-These categories should be configurable in future versions.
+These categories may become configurable in future versions.
 
 ---
 
-## FR-026 — Author Statistics
+## FR-043 — Author Analysis
 
-The application shall provide statistics relating to authors.
-
-Possible statistics include:
+The system should provide:
 
 * Most-read authors.
-* Number of books read per author.
+* Books read per author.
 * Average rating by author.
 * Pages read by author.
 * Reading time by author.
-* Authors with the highest-rated books.
+* Highest-rated authors.
 
 ---
 
-## FR-027 — Rating Analysis
+## FR-044 — Rating Analysis
 
-The application shall provide statistics relating to ratings.
-
-Possible statistics include:
+The system shall support:
 
 * Average rating.
 * Rating distribution.
-* Books receiving each rating.
+* Books per rating.
 * Average rating by genre.
 * Average rating by author.
-* Average rating by publication period.
 * Rating trends over time.
 
 ---
 
-## FR-028 — Reading Pace
+## FR-045 — Reading Pace
 
-Where start and finish dates and/or reading-session data are available, the application should calculate:
+Where sufficient data exists, the system should calculate:
 
 * Days spent reading a book.
 * Average days per book.
 * Books completed per month.
-* Average reading-session duration.
+* Average session duration.
 * Reading time per book.
 * Estimated reading pace.
 
-These calculations shall clearly distinguish measured data from estimates.
+Measured values and estimates shall be clearly distinguished.
 
 ---
 
-## FR-029 — Reading Trends
+## FR-046 — Reading Trends
 
-The application should identify changes in reading behaviour over time.
+The system should identify changes in reading behaviour over time, including:
 
-Examples include:
-
-* Increasing or decreasing number of books read.
-* Changes in average book length.
-* Changes in preferred genres.
-* Changes in average rating.
-* Changes in reading frequency.
-* Changes in reading-session duration.
-* Changes in total reading time.
+* Number of books read.
+* Average book length.
+* Preferred genres.
+* Average rating.
+* Reading frequency.
+* Reading-session duration.
+* Total reading time.
 
 ---
 
-# 12. Analytics Dashboard
+# 13. Analytics Dashboard
 
-## FR-030 — User Statistics Dashboard
-
-A future graphical interface shall provide an analytics dashboard presenting important reading statistics visually.
+A future user interface may provide visual analytics.
 
 Potential visualisations include:
 
@@ -574,38 +949,36 @@ Potential visualisations include:
 * Rating distribution.
 * Book-length distribution.
 * Top authors.
-* Reading status breakdown.
-* Reading-session duration.
+* Reading status.
+* Session duration.
 * Reading time by genre.
 
-The dashboard should allow the user to select relevant time periods.
+The dashboard should support relevant time-period filtering.
 
 ---
 
-# 13. Power BI Integration
+# 14. Power BI Integration
 
-Power BI may be used as an additional analytics and portfolio component.
+Power BI is an additional analytics and portfolio component rather than a dependency of the application.
 
-## FR-031 — Power BI Data Access
+---
 
-The application should maintain structured data in a form that can be analysed using Power BI.
+## FR-047 — Analytics Data Export
 
-Potential approaches include:
+The application shall provide structured data that can be consumed by Power BI.
 
-* SQLite export.
+Potential methods include:
+
 * CSV export.
-* PostgreSQL connection.
-* Dedicated analytical dataset.
-
-The application shall not depend on Power BI for core functionality.
+* SQLite access.
+* PostgreSQL connection in later versions.
+* Dedicated analytical datasets in future versions.
 
 ---
 
-## FR-032 — Power BI Portfolio Dashboard
+## FR-048 — Power BI Dashboard
 
-A separate Power BI dashboard may be developed to demonstrate the analytical capabilities of the application.
-
-The dashboard may include:
+A separate Power BI dashboard may demonstrate:
 
 * Reading trends.
 * Genre analysis.
@@ -615,39 +988,43 @@ The dashboard may include:
 * Reading-time analysis.
 * Yearly reading summaries.
 
-Power BI visualisations shall use data generated from the application rather than manually created sample data.
+The dashboard should use data generated from Book Brain rather than manually created sample data.
 
 ---
 
-# 14. Context-Aware Recommendation System
+# 15. Recommendation System
 
-The recommendation system is one of the core long-term features of Book Brain.
+The recommendation engine is a major long-term feature.
 
-Recommendations shall consider not only what books the user likes, but also **what the user is trying to accomplish at the time of the request**.
+It shall be implemented independently of the conversational AI.
 
-## FR-033 — Personalised Recommendations
+The recommendation system shall distinguish between **candidate generation**, **filtering**, **scoring**, and **ranking**.
 
-The system shall recommend books based on the user's:
+---
+
+## FR-049 — Personalised Recommendations
+
+The recommendation engine shall eventually use relevant information such as:
 
 * Reading history.
 * Ratings.
 * Genres.
 * Authors.
 * Book descriptions.
-* Page counts.
+* Page count.
 * Reading time.
-* TBR.
+* TBR status.
+* Ownership.
 * Current reading status.
-* Existing library.
 * Stated preferences.
 
 ---
 
-## FR-034 — Recommendation Context
+## FR-050 — Recommendation Context
 
-The system shall identify relevant context from the user's request.
+The system shall support contextual recommendation requests.
 
-Possible contexts include:
+Potential contexts include:
 
 * Immediate reading.
 * Beach reading.
@@ -658,94 +1035,84 @@ Possible contexts include:
 * Mood-based reading.
 * Bookshop visit.
 * General discovery.
-* "Surprise me."
+* Surprise me.
 
-The list of contexts may expand over time.
+The context model may evolve.
 
 ---
 
-## FR-035 — Ownership-Aware Recommendations
+## FR-051 — Ownership-Aware Recommendations
 
 The recommendation system shall distinguish between:
 
-* Books owned by the user.
-* Books on the user's TBR.
-* Books currently being read.
-* Books previously completed.
-* Books not owned by the user.
+* Owned books.
+* TBR books.
+* Currently reading books.
+* Completed books.
+* Unowned books.
 
-The recommendation system shall respect ownership requirements implied by the user's request.
-
-For example:
-
-> "I'm going to the beach today. What should I read?"
-
-shall prioritise books already available to the user.
+Ownership requirements expressed or implied by the user shall be treated as recommendation constraints.
 
 ---
 
-## FR-036 — Immediate Reading Recommendations
+## FR-052 — Immediate Reading Recommendations
 
-When a user requests something to read immediately, the system shall prioritise books already available in the user's library.
-
-The system should generally:
-
-1. Exclude books that require acquisition.
-2. Prefer appropriate TBR books.
-3. Exclude books already completed unless the user requests a reread.
-4. Consider currently reading books appropriately.
-5. Consider the user's historical preferences.
-6. Consider the requested context.
-7. Consider book length and other relevant constraints.
-
----
-
-## FR-037 — Short-Book / Beach-Read Recommendations
-
-For requests such as:
-
-> "Suggest something for a beach read today."
-
-the system should give greater weight to:
-
-* Books already owned.
-* Books on the TBR.
-* Books matching the user's preferred genres.
-* Books matching the user's historical reading preferences.
-* Shorter books.
-
-A default preference may be given to books approximately **100–150 pages**, where suitable candidates exist.
-
-The 100–150 page preference shall be treated as a recommendation weighting rather than an absolute requirement.
-
-If no suitable books exist within this range, the system may recommend progressively longer books.
-
----
-
-## FR-038 — Bookshop Recommendations
-
-When a user requests recommendations for a bookshop visit, the recommendation system shall prioritise books the user does **not** already own.
-
-For example:
-
-> "I'm on my way to the bookshop. Have you got any must-buys for me?"
+When the user asks for something they can read immediately, the system shall prioritise books already available to them.
 
 The system should:
 
-1. Analyse the user's reading preferences.
-2. Analyse highly rated books.
-3. Analyse favourite genres and authors.
-4. Consider the user's TBR where useful.
-5. Exclude books already owned.
-6. Identify suitable books from external book data.
-7. Rank the potential purchases.
-8. Explain why each book is recommended.
+1. Exclude books requiring acquisition.
+2. Prefer suitable unread/TBR books.
+3. Avoid completed books unless rereading is requested.
+4. Consider currently reading books appropriately.
+5. Consider historical preferences.
+6. Consider context.
+7. Consider relevant constraints such as length.
 
 ---
 
-## FR-039 — Recommendation Candidate Filtering
+## FR-053 — Short-Book Recommendations
 
-Before generating a final recommendation, the system shall filter candidate books according to relevant constraints.
+For requests such as:
+
+> "Suggest something short for the beach."
+
+the system should give greater weight to:
+
+* Owned books.
+* Unread/TBR books.
+* Appropriate genres.
+* Historical preferences.
+* Shorter books.
+
+A preference of approximately **100–150 pages** may be used as a recommendation weighting.
+
+This shall not be an absolute requirement.
+
+If suitable books are unavailable within that range, longer books may be considered.
+
+---
+
+## FR-054 — Bookshop Recommendations
+
+When the user requests recommendations for purchasing, the system shall allow books outside the user's existing library.
+
+The system should:
+
+1. Analyse reading history.
+2. Analyse highly rated books.
+3. Identify preferred genres and authors.
+4. Consider relevant TBR information.
+5. Exclude books already owned.
+6. Retrieve candidate books from external sources where available.
+7. Rank candidates.
+8. Explain recommendations.
+
+---
+
+## FR-055 — Candidate Filtering
+
+Before ranking candidates, the system shall apply relevant constraints.
 
 Potential constraints include:
 
@@ -754,182 +1121,203 @@ Potential constraints include:
 * Reading status.
 * Genre.
 * Author.
-* Book length.
+* Page count.
 * Rating history.
 * User preferences.
-* Reading context.
-* Previously completed books.
+* Context.
+* Previous completion.
 * Availability.
 
 ---
 
-## FR-040 — Recommendation Ranking
+## FR-056 — Candidate Ranking
 
-Candidate books shall be ranked according to their relevance to the user's request.
+The recommendation engine shall assign relevance scores to eligible candidates.
 
-Different contexts may assign different weights to recommendation factors.
+Different contexts may use different weighting factors.
 
 For example:
 
 ### Beach-read request
 
-Potential weighting:
-
-* Owned: very high.
-* TBR: high.
-* Genre compatibility: high.
-* User preference: high.
-* Book length: high.
-* Previous ratings: medium/high.
+```text
+Owned                 Very high
+TBR                   High
+Genre compatibility   High
+Preference match      High
+Book length           High
+Previous ratings      Medium/High
+```
 
 ### Bookshop request
 
-Potential weighting:
+```text
+Not owned             Very high
+Genre compatibility   High
+Preference match      High
+Similarity             High
+Author preference     Medium/High
+Book length           Context-dependent
+```
 
-* Not owned: very high.
-* Genre compatibility: high.
-* User preference: high.
-* Similarity to highly rated books: high.
-* Author preference: medium/high.
-* Book length: context-dependent.
-
-The exact ranking algorithm shall be developed and evaluated during the recommendation-system phase.
-
----
-
-## FR-041 — Recommendation Availability
-
-The system shall distinguish between:
-
-### Available now
-
-Books already accessible to the user.
-
-### Requires acquisition
-
-Books that the user does not currently own.
-
-The AI should not recommend an unavailable book as an immediate reading choice unless the user has indicated that acquiring a book is acceptable.
+The exact algorithm shall be developed and evaluated during the recommendation phase.
 
 ---
 
-## FR-042 — Recommendation Explanations
+## FR-057 — Recommendation Availability
 
-The system should explain why each recommendation was selected.
+Recommendations shall distinguish between:
+
+**Available now**
+
+and:
+
+**Requires acquisition**
+
+An unavailable book shall not be presented as an immediately available reading option unless acquisition is acceptable in the request.
+
+---
+
+## FR-058 — Recommendation Explanation
+
+The system should provide reasons for recommendations.
 
 For example:
 
-> "I'd take *Book X*. You already own it and it's on your TBR. At 137 pages, it's one of your shorter unread books, and you've rated several books in this genre highly."
-
-For bookshop recommendations:
-
-> "*Book Y* is a strong candidate because you rated three books by similar authors 4–5 stars, but you don't currently own it."
+> "I'd pick this one because you already own it, it's on your TBR, and at 137 pages it's one of your shorter unread books. You've also rated several books in this genre highly."
 
 ---
 
-## FR-043 — Recommendation Transparency
+## FR-059 — Recommendation Transparency
 
-The recommendation system shall be capable of identifying the factors that contributed to a recommendation.
+The recommendation engine shall expose sufficient scoring information for:
 
-This information should be available for:
-
-* Debugging.
 * Testing.
+* Debugging.
 * Evaluation.
-* Improving recommendation quality.
+* Algorithm improvement.
 
-The user-facing explanation may be simplified.
-
----
-
-## FR-044 — No Unnecessary Purchases
-
-When a user requests a recommendation for something they can read immediately from their existing library, the system should prioritise books already available to them rather than recommending books requiring purchase.
+The technical scoring data may be simplified when presented to the user.
 
 ---
 
-## FR-045 — Recommendation Exclusions
+## FR-060 — Recommendation Exclusions
 
-The system should support explicit exclusions such as:
+The system shall support explicit exclusions such as:
 
-* "Don't recommend anything I've already read."
-* "Nothing over 300 pages."
-* "No romance."
-* "Don't suggest this author."
-* "Only recommend books on my TBR."
-* "Only suggest physical books I own."
+* Do not recommend books already read.
+* No books over 300 pages.
+* No romance.
+* Exclude a specific author.
+* Only recommend TBR books.
+* Only recommend books physically owned.
 
-These exclusions should take priority over general recommendation preferences.
-
----
-
-# 15. Recommendation Architecture
-
-## FR-046 — Structured Candidate Generation
-
-The application shall generate recommendation candidates using structured data and defined rules before asking an AI model to produce a natural-language response.
-
-The AI model shall not independently invent the user's library contents.
+Explicit exclusions shall take precedence over general preferences.
 
 ---
 
-## FR-047 — Database as Source of Truth
+# 16. Recommendation Architecture
 
-The application database shall remain the authoritative source for:
+## FR-061 — Structured Recommendation Requests
 
-* Book ownership.
-* Reading status.
-* TBR status.
-* Ratings.
-* Reading history.
-* Reading sessions.
-* User notes.
-* Other personal library information.
+The recommendation engine shall accept structured requests independent of natural-language input.
 
-The AI system shall receive relevant structured information from the application.
-
----
-
-## FR-048 — AI as Conversational Layer
-
-The AI shall primarily be responsible for:
-
-* Understanding natural-language requests.
-* Identifying relevant intent and constraints.
-* Communicating recommendation results naturally.
-* Explaining recommendations.
-* Asking clarification questions where necessary.
-* Combining structured application results into useful responses.
-
-The AI shall not be relied upon as the authoritative database of the user's books.
-
----
-
-## FR-049 — Recommendation Engine Independence
-
-The recommendation engine should remain independently testable from the conversational AI.
-
-It should be possible to provide a structured request such as:
+Example:
 
 ```text
 context = beach_read
-ownership = owned
+availability = owned
 status = unread
 preferred_pages = 100–150
 genre_preference = high
 ```
 
-and receive a ranked set of candidate books without requiring an LLM.
+---
+
+## FR-062 — Independent Recommendation Engine
+
+The recommendation engine shall be independently executable and testable without an LLM.
+
+For example:
+
+```text
+Structured request
+       ↓
+Candidate query
+       ↓
+Filtering
+       ↓
+Scoring
+       ↓
+Ranking
+       ↓
+Ranked books
+```
 
 ---
 
-# 16. AI Librarian
+## FR-063 — Database Source of Truth
 
-## FR-050 — Conversational AI
+Recommendation decisions shall use authoritative application data for:
 
-A future version shall provide a conversational interface allowing the user to ask questions about their library.
+* Ownership.
+* Reading status.
+* TBR.
+* Ratings.
+* Reading history.
+* Reading sessions.
+* User notes.
 
-Examples:
+---
+
+# 17. Semantic Search and Embeddings
+
+Semantic search is a future capability.
+
+---
+
+## FR-064 — Book Embeddings
+
+A future version may generate embeddings from relevant book information such as:
+
+* Descriptions.
+* Genres.
+* Themes.
+* Other suitable metadata.
+
+---
+
+## FR-065 — Similarity Search
+
+The system may use embeddings to identify semantically similar books.
+
+Potential uses include:
+
+* Finding books similar to highly rated books.
+* Improving recommendations.
+* Finding thematic similarities.
+* Supporting AI librarian retrieval.
+
+Potential technologies include:
+
+* Local embedding models.
+* PostgreSQL with `pgvector`.
+* Chroma.
+* Qdrant.
+
+A separate vector database shall only be introduced where the requirements justify its complexity.
+
+---
+
+# 18. AI Librarian
+
+The AI librarian is a future feature that will provide natural-language access to Book Brain functionality.
+
+---
+
+## FR-066 — Conversational Queries
+
+The AI librarian shall eventually support requests such as:
 
 * "What should I read next?"
 * "What horror books do I own?"
@@ -943,81 +1331,82 @@ Examples:
 
 ---
 
-## FR-051 — Library-Aware AI
+## FR-067 — Natural-Language Intent
 
-The AI librarian shall be capable of distinguishing between:
-
-* Books owned by the user.
-* Books on the TBR list.
-* Books currently being read.
-* Books already completed.
-* Books not owned by the user.
-
-The AI shall not claim that a book is owned by the user unless that information is available from the application data.
-
----
-
-## FR-052 — Statistics-Aware AI
-
-The AI librarian should eventually be able to use the user's reading statistics when answering questions.
-
-Examples include:
-
-> "What genre do I read most?"
-
-> "Have I been reading longer books this year?"
-
-> "Which author do I rate highest?"
-
-> "I haven't read much horror this year. What do I own?"
-
-> "When do I usually read?"
-
-> "How much time did I spend reading last month?"
-
----
-
-## FR-053 — Context-Aware AI
-
-The AI should use contextual information from the user's request when deciding how to formulate a recommendation.
+The AI shall interpret natural-language requests into structured application operations.
 
 For example:
 
-> "I'm going to the beach today."
+```text
+"I'm going to the beach today."
 
-should be interpreted differently from:
-
-> "I'm going to the bookshop today."
-
-The first should prioritise immediate availability from the user's existing collection.
-
-The second should allow recommendations for books not currently owned.
+→ context = beach
+→ availability = owned
+→ likely_status = unread
+```
 
 ---
 
-## FR-054 — Clarification
+## FR-068 — Library-Aware AI
 
-Where a request is ambiguous and the ambiguity materially affects the recommendation, the AI should ask an appropriate clarification question.
+The AI librarian shall distinguish between:
+
+* Owned books.
+* TBR books.
+* Currently reading books.
+* Completed books.
+* Unowned books.
+
+The AI shall not claim that a book belongs to the user without authoritative application data.
+
+---
+
+## FR-069 — Statistics-Aware AI
+
+The AI librarian should eventually use application statistics to answer questions such as:
+
+* "What genre do I read most?"
+* "Have I been reading longer books this year?"
+* "Which authors do I rate highest?"
+* "How much time did I spend reading last month?"
+
+---
+
+## FR-070 — Context-Aware AI
+
+The AI shall use contextual information when interpreting recommendation requests.
 
 For example:
 
-> "Do you want something from your existing library, or are you looking to buy something?"
+```text
+Beach today
+→ immediate availability
 
-The system should avoid unnecessary clarification where a reasonable interpretation is available.
+Bookshop today
+→ acquisition permitted
+```
 
 ---
 
-## FR-055 — AI Provider Independence
+## FR-071 — Clarification
 
-The AI functionality should be designed so that the application is not permanently dependent on a single AI provider.
+Where ambiguity materially affects the requested operation, the AI should ask a clarification question.
 
-Potential approaches may include:
+It should avoid unnecessary clarification when a reasonable interpretation exists.
 
-* Local open-weight language models.
-* External AI APIs.
-* Multiple interchangeable model providers.
+---
 
-The final AI architecture shall be selected based on:
+## FR-072 — AI Provider Independence
+
+The AI architecture should avoid permanent dependency on one model provider.
+
+Potential approaches include:
+
+* Local open-weight models.
+* External APIs.
+* Multiple interchangeable providers.
+
+The final implementation shall consider:
 
 * Capability.
 * Cost.
@@ -1028,77 +1417,137 @@ The final AI architecture shall be selected based on:
 
 ---
 
-# 17. Wearable Integration
+# 19. AI Tool Architecture
 
-Wearable integration is a future development area and shall not be required for the MVP.
+The AI librarian may eventually access controlled application tools.
 
-## FR-056 — Wearable Reading Session Tracking
+Potential tools include:
 
-The application should investigate integration with wearable platforms such as Fitbit to allow users to start and stop reading sessions from a supported wearable device.
+```text
+search_library()
+get_book()
+get_tbr()
+get_current_book()
+get_reading_statistics()
+find_books_by_genre()
+find_books_under_pages()
+get_recommendations()
+start_reading_session()
+stop_reading_session()
+search_external_books()
+```
 
-A potential interaction could be:
+The AI shall only have access to functionality explicitly exposed as tools.
 
-1. User selects **Start Reading** on their wearable.
-2. The wearable records the session start time.
-3. User reads their book.
-4. User selects **Stop Reading**.
-5. The wearable records the session end time.
-6. Book Brain receives or imports the reading session.
-7. Book Brain associates the session with a book where possible.
+Tool arguments shall be validated by the application.
 
-The exact implementation shall depend on the capabilities and restrictions of the selected wearable platform.
+Destructive operations shall require appropriate safeguards.
 
 ---
 
-## FR-057 — Wearable Reading Session Import
+# 20. Retrieval-Augmented Generation
 
-Where supported by the wearable platform, Book Brain should be able to import:
+RAG may be introduced where retrieval provides a meaningful benefit.
 
-* Session start time.
-* Session end time.
-* Session duration.
+The intended pattern is:
+
+```text
+User question
+      ↓
+LLM
+      ↓
+Determine required information
+      ↓
+Application retrieval
+      ↓
+Database / semantic search
+      ↓
+Relevant information
+      ↓
+LLM
+      ↓
+Response
+```
+
+Structured questions should use direct application queries where appropriate.
+
+For example:
+
+> "How many books did I read this year?"
+
+should preferably use a deterministic database/analytics query rather than semantic search.
+
+---
+
+# 21. Wearable Integration
+
+Wearable integration is a future development area.
+
+It shall not be required for the MVP.
+
+---
+
+## FR-073 — Wearable Reading Sessions
+
+The application should investigate integration with wearable platforms such as Fitbit.
+
+A potential workflow is:
+
+```text
+Start Reading
+     ↓
+Reading session
+     ↓
+Stop Reading
+     ↓
+Synchronisation
+     ↓
+Book Brain
+     ↓
+Reading Session
+```
+
+---
+
+## FR-074 — Wearable Session Import
+
+Where supported, Book Brain should be able to import:
+
+* Start time.
+* End time.
+* Duration.
 * Relevant activity information.
-* Associated device/platform information where useful.
+* Device/platform information where useful.
 
-The system should prevent duplicate sessions from being imported.
-
----
-
-## FR-058 — Unassigned Wearable Sessions
-
-A wearable-generated reading session shall not require a book to be known when the session begins.
-
-If no book is associated with the session, Book Brain shall store it as an unassigned reading session.
-
-The user should subsequently be able to associate the session with a book.
-
-Example:
-
-> **45-minute reading session — Which book were you reading?**
-
-The user may then select the relevant book.
+Duplicate sessions should be prevented.
 
 ---
 
-## FR-059 — Current Book Association
+## FR-075 — Unassigned Wearable Sessions
 
-The system should allow the user to designate a book as currently being read.
+A wearable-generated session shall not require a book to be known at the time it begins.
 
-Where a single current book is selected, an imported reading session may be automatically associated with that book.
-
-The user shall be able to review or change the association.
-
-The system shall not assume a book when the available information is insufficient.
+Unassigned sessions shall be stored and may be associated with a book later.
 
 ---
 
-## FR-060 — Wearable Platform Independence
+## FR-076 — Current Book Association
 
-Wearable integration should be designed so that core Book Brain reading-session functionality is not dependent on Fitbit specifically.
+Where the user has identified a current book, an imported session may be automatically associated with it.
 
-Where practical, the architecture should allow additional wearable platforms to be integrated in the future.
+The user shall be able to review and change the association.
 
-Potential platforms may include:
+The application shall not make an association where the available information is insufficient.
+
+---
+
+## FR-077 — Wearable Platform Independence
+
+Core reading-session functionality shall not depend specifically on Fitbit.
+
+Where practical, wearable integrations should use an abstraction that allows additional platforms to be added later.
+
+Potential platforms include:
 
 * Fitbit.
 * Wear OS.
@@ -1106,103 +1555,206 @@ Potential platforms may include:
 
 ---
 
-## FR-061 — Wearable Integration Feasibility
+## FR-078 — Wearable Feasibility Investigation
 
-Before implementing wearable functionality, the project shall investigate:
+Before implementation, the project shall investigate:
 
-* Available developer APIs.
-* Custom application/activity support.
-* Bluetooth capabilities.
-* Data synchronisation mechanisms.
-* Authentication requirements.
+* Developer APIs.
+* Custom application support.
+* Authentication.
+* Synchronisation.
 * Device compatibility.
-* API usage limits.
-* Privacy implications.
+* API limits.
+* Privacy.
 * Cost.
 * Platform restrictions.
 
-If direct wearable integration is not technically or commercially feasible, the project should investigate alternatives such as a companion mobile application or standard wearable activity data.
+If direct integration is not feasible, alternative approaches shall be considered.
 
 ---
 
-# 18. Web Application
+# 22. Web Application
 
-## FR-062 — Web Interface
+The web application shall be introduced after the core application architecture is sufficiently stable.
 
-A future version shall provide a web-based interface for managing the library.
+---
 
-The interface should provide:
+## FR-079 — Web Interface
+
+A future web interface shall provide access to appropriate Book Brain functionality.
+
+Potential features include:
 
 * Library view.
 * Book details.
 * Search.
 * Filtering.
-* Book addition.
-* Reading status management.
-* Reading-session management.
-* Statistics dashboard.
-* Recommendation interface.
+* Book management.
+* Reading management.
+* Session management.
+* Statistics.
+* Recommendations.
 * AI librarian.
 
 ---
 
-# 19. Mobile Application
+## FR-080 — Backend API
 
-## FR-063 — Mobile Application
+A future backend API shall expose controlled application functionality.
 
-A future version shall provide a mobile application.
+Potential API areas include:
 
-The mobile application should allow users to:
+```text
+/books
+/authors
+/genres
+/library
+/reading
+/sessions
+/statistics
+/recommendations
+/ai
+```
 
-* View their library.
-* Add books.
-* Scan ISBN barcodes.
-* Update reading status.
-* Rate books.
-* Start and stop reading sessions.
-* View statistics.
-* Receive recommendations.
-* Interact with the AI librarian.
-
-The mobile application shall communicate with the backend through an API.
+Business logic shall remain in application services rather than being duplicated inside API endpoints.
 
 ---
 
-# 20. Data Requirements
+# 23. Mobile Application
 
-The application shall maintain structured data suitable for both transactional application use and future analytics.
+---
 
-The initial data model is expected to include entities such as:
+## FR-081 — Mobile Application
 
-* Book.
-* Author.
-* Genre.
-* Library entry.
+A future mobile application shall provide access to the core Book Brain functionality.
+
+Potential functionality includes:
+
+* Library management.
+* Book search.
+* ISBN scanning.
 * Reading status.
-* Rating.
-* Reading session/history.
-* Book format.
-
-The final database structure shall be determined during database design.
-
-The database should avoid unnecessary duplication and maintain appropriate relationships between entities.
-
-The data model should support:
-
-* Multiple genres per book.
-* Multiple authors where appropriate.
-* Multiple formats.
-* Different editions.
+* Ratings.
 * Reading sessions.
-* Unassigned reading sessions.
-* Historical reading data.
-* Future recommendation data.
-
-Reading sessions shall be stored independently from books so that sessions can exist before being associated with a particular book.
+* Statistics.
+* Recommendations.
+* AI librarian.
 
 ---
 
-# 21. Data Quality
+## FR-082 — Shared Backend
+
+The mobile application shall communicate with the same backend and application services used by the web application.
+
+Core business logic shall not be duplicated independently within the mobile application.
+
+---
+
+# 24. Data Requirements
+
+The data model shall support the distinction between:
+
+```text
+Book / Work
+    ↓
+Edition
+    ↓
+Library Entry
+    ↓
+Reading Record
+    ↓
+Reading Sessions
+```
+
+The final database structure shall be documented separately in:
+
+`docs/database-design.md`
+
+Expected entities include:
+
+* Book/work.
+* Edition.
+* Author.
+* Book-author relationship.
+* Genre.
+* Book-genre relationship.
+* Library entry.
+* Reading record.
+* Reading session.
+* Format.
+* Data source/provenance where required.
+
+The exact table structure shall be determined during database design.
+
+---
+
+## DR-001 — Multiple Authors
+
+A book shall support multiple authors where appropriate.
+
+---
+
+## DR-002 — Multiple Genres
+
+A book shall support multiple genres/categories.
+
+---
+
+## DR-003 — Multiple Editions
+
+The data model shall support multiple editions of the same book/work.
+
+---
+
+## DR-004 — Multiple Formats
+
+The data model shall support different formats/editions.
+
+---
+
+## DR-005 — Reading Sessions
+
+Reading sessions shall exist independently from book associations.
+
+---
+
+## DR-006 — Historical Reading
+
+The data model should preserve historical reading information even when a book is removed from the user's current library.
+
+---
+
+## DR-007 — Incomplete Metadata
+
+The application shall support books with incomplete metadata.
+
+For example, missing:
+
+* Page count.
+* Publisher.
+* ISBN.
+* Cover.
+* Publication date.
+
+Missing information shall not make the book unusable.
+
+---
+
+## DR-008 — Export
+
+The user shall be able to export their personal data in a practical machine-readable format.
+
+Potential formats include:
+
+* CSV.
+* JSON.
+* SQLite database copy.
+
+The final export format shall be defined during implementation.
+
+---
+
+# 25. Data Quality Requirements
 
 ## NFR-001 — Data Validation
 
@@ -1212,44 +1764,46 @@ Examples include:
 
 * ISBN format.
 * Rating range.
-* Valid dates.
+* Dates.
 * Page count.
 * Required fields.
-* Reading-session start and end times.
+* Reading-session timestamps.
 
 ---
 
 ## NFR-002 — Data Consistency
 
-The system shall maintain consistent relationships between books, authors, genres, and reading records.
+The application shall maintain referential and logical consistency between:
+
+* Books.
+* Editions.
+* Authors.
+* Genres.
+* Library entries.
+* Reading records.
+* Reading sessions.
 
 ---
 
 ## NFR-003 — Missing Data
 
-The application shall support incomplete metadata.
-
-For example, a book without a page count should still be usable.
-
-Statistics shall account for missing data rather than producing misleading results.
+Statistics shall account for missing values rather than treating missing data as zero or otherwise producing misleading results.
 
 ---
 
 ## NFR-004 — Data Provenance
 
-Where practical, the system should distinguish between information:
+Where practical, the system should distinguish between data:
 
-* Entered manually by the user.
-* Retrieved from an external API.
+* Entered by the user.
+* Imported from an external API.
 * Imported from a wearable.
 * Calculated by the application.
-* Generated by an AI system.
-
-This will improve transparency and make inaccurate metadata easier to identify and correct.
+* Generated or interpreted by AI.
 
 ---
 
-# 22. Non-Functional Requirements
+# 26. Non-Functional Requirements
 
 ## NFR-005 — Usability
 
@@ -1259,13 +1813,13 @@ The application should minimise unnecessary manual data entry.
 
 ## NFR-006 — Reliability
 
-The application should handle invalid input and external API or wearable failures without crashing or corrupting existing data.
+Invalid input and external service failures shall not cause data corruption.
 
 ---
 
 ## NFR-007 — Maintainability
 
-The code shall be organised into logical components with clearly defined responsibilities.
+Code shall be organised into logical components with clearly defined responsibilities.
 
 ---
 
@@ -1273,73 +1827,103 @@ The code shall be organised into logical components with clearly defined respons
 
 Core functionality shall have automated tests.
 
-External integrations should have appropriate integration tests and/or mocked tests where live services are unavailable.
+The recommendation engine shall have tests covering:
 
-The recommendation engine shall have tests covering different recommendation contexts and constraints.
+* Different contexts.
+* Ownership constraints.
+* Explicit exclusions.
+* Page-length constraints.
+* Ranking behaviour.
+
+External integrations should use appropriate integration tests and mocks where required.
 
 ---
 
 ## NFR-009 — Security
 
-When user accounts or remote access are introduced:
+When remote access or user accounts are introduced:
 
 * Authentication information shall be protected.
-* Secrets shall not be stored in source code.
-* Personal library data shall not be publicly exposed.
-* API keys shall be stored securely.
-* Access to user data shall be appropriately controlled.
+* Secrets shall not be committed to source control.
+* API credentials shall be stored securely.
+* User data shall not be publicly exposed.
+* Access shall be appropriately authorised.
+* Communication shall use appropriate encryption.
 
 ---
 
 ## NFR-010 — Portability
 
-The application should be capable of running in a local development environment on common operating systems.
+The initial application should run locally on common operating systems supported by Python and SQLite.
 
 ---
 
 ## NFR-011 — Cost
 
-The MVP should be developed using free software and services wherever practical.
+The MVP should use free software and services wherever practical.
 
-Paid services should not be required for the initial version.
+Paid services shall not be required for core MVP functionality.
 
-Future paid services shall be evaluated based on their value and ongoing cost.
+Future costs shall be evaluated before introducing paid dependencies.
 
 ---
 
 ## NFR-012 — Scalability
 
-The initial application may use SQLite.
+SQLite shall be used initially.
 
-The architecture should allow migration to PostgreSQL if multiple users, remote access, increased concurrency, or other requirements justify a server-based database.
+The architecture should permit migration to PostgreSQL if requirements such as:
+
+* Multiple users.
+* Remote access.
+* Increased concurrency.
+* Cloud deployment.
+* Advanced database capabilities.
+
+justify the additional complexity.
 
 ---
 
 ## NFR-013 — Privacy
 
-Personal library information, reading history, ratings, notes, and other user-generated data should remain private by default.
+Personal library information, reading history, ratings, notes, and preferences shall be private by default.
 
-Future AI and wearable functionality should consider whether user data is processed locally or transmitted to external services.
+Future AI and wearable functionality shall consider whether personal data is processed locally or transmitted to external services.
 
 ---
 
-# 23. Analytics Architecture Principle
+## NFR-014 — External Service Independence
 
-The application shall separate operational data from analytics and presentation where practical.
+The core application shall remain functional when optional external services are unavailable.
 
-The core database shall remain the authoritative source of information.
+---
+
+# 27. Analytics Architecture Principle
+
+Operational data and analytics/presentation concerns should be separated where practical.
+
+The core database remains the authoritative source.
 
 Analytics may be generated through:
 
-1. SQL queries.
-2. Python data processing.
-3. Application-generated statistics.
-4. Power BI.
-5. Future analytics services.
+```text
+Database
+    ↓
+SQL queries
+    ↓
+Application statistics
+    ↓
+Python/Pandas
+    ↓
+Power BI
+```
 
-Reading-session data shall be structured so it can be analysed alongside:
+The application shall not require Power BI to calculate core statistics.
+
+Reading-session data shall be structured so that it can be analysed alongside:
 
 * Books.
+* Editions.
 * Genres.
 * Authors.
 * Formats.
@@ -1347,23 +1931,24 @@ Reading-session data shall be structured so it can be analysed alongside:
 * Reading history.
 * Reading status.
 
-Recommendation data shall also be structured sufficiently to allow evaluation of recommendation quality in the future.
+Recommendation information should eventually support evaluation of recommendation quality.
 
 ---
 
-# 24. Initial Technology Direction
+# 28. Initial Technology Direction
 
-The following technologies represent the current development direction rather than permanent technology commitments.
+The following technologies represent the current direction rather than permanent commitments.
 
-### Initial development
+## Initial Development
 
 * Python.
 * SQLite.
 * SQL.
 * Git.
 * GitHub.
+* Python testing framework.
 
-### Data analysis
+## Data Analysis
 
 * Python.
 * Pandas.
@@ -1371,12 +1956,12 @@ The following technologies represent the current development direction rather th
 * Matplotlib where appropriate.
 * Power BI.
 
-### Future backend
+## Future Backend
 
 * FastAPI.
 * PostgreSQL.
 
-### Future web frontend
+## Future Web Frontend
 
 Potential technologies include:
 
@@ -1386,71 +1971,80 @@ Potential technologies include:
 * React.
 * TypeScript.
 
-The final frontend technology shall be selected based on project requirements and learning and portfolio value.
+The final frontend technology shall be selected when implementation begins.
 
-### Future mobile application
+## Future Mobile Application
 
 Potential technology:
 
 * React Native.
 
-The final mobile framework shall be selected when mobile development begins.
+The final framework shall be selected when mobile development begins.
 
-### Future wearable integration
+## Future Wearable Integration
 
 Potential integrations include:
 
-* Fitbit APIs/platform.
+* Fitbit.
 * Wear OS.
 * Other supported wearable platforms.
 
-The final implementation shall depend on the capabilities and restrictions of the selected platforms.
+The implementation shall depend on platform capabilities and restrictions.
 
-### AI
+## Future AI
 
 Potential approaches include:
 
-* Custom recommendation algorithms.
 * Rule-based recommendation.
 * Content-based filtering.
-* Embeddings and semantic search.
+* Collaborative approaches where sufficient data exists.
+* Embeddings.
+* Semantic search.
 * Local open-weight language models.
 * External AI APIs.
 * Retrieval-Augmented Generation.
+* Tool calling.
 * Hybrid recommendation systems.
 
-The AI approach shall be selected after the core library, database, analytics, and recommendation functionality have been implemented.
+AI shall be introduced only after the underlying library, database, analytics, and recommendation functionality is sufficiently mature.
 
 ---
 
-# 25. MVP Acceptance Criteria
+# 29. MVP Acceptance Criteria
 
 The MVP shall be considered complete when the user can:
 
 1. Create the SQLite database.
-2. Add a book.
-3. Store book metadata.
-4. Retrieve books.
-5. Search for books.
-6. Update book information.
-7. Delete a book.
-8. Assign a reading status.
-9. Record a rating.
-10. Record reading dates.
-11. Add notes.
-12. Start a reading session manually.
-13. End a reading session manually.
-14. Store reading-session duration.
-15. Associate a reading session with a book.
-16. Produce basic reading statistics.
-17. Export library and reading data.
-18. Run automated tests against core functionality.
+2. Create and store a book/work.
+3. Create and store an edition where applicable.
+4. Store authors.
+5. Store genres.
+6. Add a book/edition to their library.
+7. Retrieve library records.
+8. Search for books.
+9. Update book and library information.
+10. Remove a book from the library.
+11. Assign a reading status.
+12. Record a rating.
+13. Record reading dates.
+14. Add reading notes.
+15. Start a reading session manually.
+16. End a reading session manually.
+17. Store reading-session duration.
+18. Associate a reading session with a book.
+19. Leave a reading session unassigned.
+20. Produce basic reading statistics.
+21. Export personal library/reading data.
+22. Run automated tests against core functionality.
 
 The MVP shall **not** require:
 
 * Graphical frontend.
+* FastAPI.
 * AI.
 * Recommendation engine.
+* Semantic search.
+* Vector database.
 * Barcode scanning.
 * External book APIs.
 * Wearable integration.
@@ -1459,20 +2053,32 @@ The MVP shall **not** require:
 * Mobile application.
 * Power BI integration.
 
-These features will be introduced through later milestones.
-
 ---
 
-# 26. Future Development Milestones
+# 30. Future Development Milestones
 
-The exact roadmap shall be maintained separately in `docs/roadmap.md`.
+The exact roadmap shall be maintained separately in:
+
+`docs/roadmap.md`
 
 Potential development phases include:
 
-### Phase 1 — Core Library
+## Phase 1 — Project Foundation
+
+* Repository structure.
+* Documentation.
+* Development environment.
+* Database design.
+* Testing structure.
+
+## Phase 2 — Core Library
 
 * SQLite database.
-* Database schema.
+* Book/work records.
+* Editions.
+* Authors.
+* Genres.
+* Library entries.
 * CRUD operations.
 * Search.
 * Reading status.
@@ -1480,83 +2086,137 @@ Potential development phases include:
 * Notes.
 * Tests.
 
-### Phase 2 — Reading Tracking
+## Phase 3 — Reading Tracking
 
+* Reading records.
 * Reading dates.
 * Reading sessions.
 * Reading-time calculations.
 * Basic statistics.
 
-### Phase 3 — External Metadata
+## Phase 4 — External Metadata
 
 * ISBN lookup.
 * Book API integration.
-* Automatic metadata population.
+* Metadata import.
+* Data provenance.
 * Error handling.
 
-### Phase 4 — Analytics
+## Phase 5 — Analytics
 
-* Advanced SQL queries.
-* Python analytics.
-* Power BI dashboard.
+* Analytical SQL.
+* Python/Pandas analysis.
 * Reading trends.
+* Power BI dashboard.
 
-### Phase 5 — Recommendation Engine
+## Phase 6 — Recommendation Engine
 
-* Recommendation rules.
-* Candidate filtering.
+* Candidate generation.
+* Filtering.
+* Scoring.
 * Ranking.
-* Context-aware recommendation.
+* Context-aware recommendations.
+* Ownership-aware recommendations.
+* Recommendation exclusions.
 * Recommendation evaluation.
 
-### Phase 6 — AI Librarian
+## Phase 7 — Semantic Search
 
-* Natural-language queries.
-* Intent detection.
-* Structured database queries.
-* Recommendation explanations.
-* Statistics-aware conversation.
-* RAG/LLM integration where appropriate.
+* Embedding generation.
+* Similarity search.
+* Evaluation of vector-storage options.
+* Integration with recommendations where useful.
 
-### Phase 7 — Web Application
+## Phase 8 — AI Librarian
 
-* Backend API.
+* Natural-language interpretation.
+* Structured outputs.
+* Database queries.
+* Recommendation integration.
+* Statistics queries.
+* Tool calling.
+* RAG where appropriate.
+* AI provider abstraction.
+
+## Phase 9 — Web Application
+
+* FastAPI backend.
 * Frontend.
 * Authentication where required.
 * Library interface.
-* Dashboard.
+* Analytics dashboard.
+* Recommendation interface.
 * AI interface.
 
-### Phase 8 — Mobile Application
+## Phase 10 — Mobile Application
 
 * Mobile interface.
+* API integration.
 * Barcode scanning.
 * Reading-session controls.
-* Mobile AI librarian.
+* AI librarian.
 
-### Phase 9 — Wearable Integration
+## Phase 11 — Wearable Integration
 
-* Investigate Fitbit developer capabilities.
-* Prototype wearable reading session.
+* Investigate Fitbit capabilities.
+* Prototype reading-session integration.
 * Synchronise sessions.
 * Associate sessions with current books.
-* Evaluate other wearable platforms.
+* Investigate other wearable platforms.
+
+## Phase 12 — Deployment and Scaling
+
+* Remote deployment.
+* PostgreSQL migration where justified.
+* Authentication.
+* Secure API access.
+* Monitoring.
+* Backup strategy.
 
 ---
 
-# 27. Long-Term Vision
+# 31. Long-Term Vision
 
 The long-term goal is to develop Book Brain into a complete personal reading platform.
 
 A mature version should allow a user to:
 
-> **Scan a book → automatically catalogue it → add it to the TBR → select it as currently reading → start a reading session → track reading time → finish the book → analyse reading habits → receive personalised recommendations → discuss their library with an AI librarian.**
+```text
+Scan a book
+     ↓
+Identify the ISBN
+     ↓
+Retrieve metadata
+     ↓
+Confirm/edit information
+     ↓
+Catalogue the book
+     ↓
+Add it to the library/TBR
+     ↓
+Select it as currently reading
+     ↓
+Start a reading session
+     ↓
+Track reading time
+     ↓
+Finish the book
+     ↓
+Rate and review it
+     ↓
+Analyse reading habits
+     ↓
+Receive personalised recommendations
+     ↓
+Discuss the library with an AI librarian
+```
 
-For example:
+---
 
-### At the beach
+## 31.1 Immediate Reading
 
-> **User:**
+For a request such as:
+
 > "I'm going to the beach. What should I read today?"
 
 Book Brain should understand that the user wants something immediately available.
@@ -1564,37 +2224,41 @@ Book Brain should understand that the user wants something immediately available
 It should prioritise:
 
 1. Books the user owns.
-2. Books they have not finished.
-3. TBR books.
-4. Books matching their preferences.
-5. Books matching the requested context.
-6. Shorter books, with approximately 100–150 pages preferred where suitable.
+2. Books that have not been completed.
+3. Suitable TBR books.
+4. Books matching preferences.
+5. Books appropriate to the context.
+6. Shorter books where appropriate.
 
-It should not recommend a book requiring a trip to the bookshop unless the user asks for purchasing recommendations.
+A preference around **100–150 pages** may be used as one ranking factor.
+
+The system should not recommend a book requiring purchase unless the user indicates that acquisition is acceptable.
 
 ---
 
-### At the bookshop
+## 31.2 Bookshop Discovery
 
-> **User:**
+For a request such as:
+
 > "I'm on my way to the bookshop. Have you got any must-buys for me?"
 
-Book Brain should understand that acquisition is now possible.
+Book Brain should understand that acquisition is possible.
 
 It should:
 
-1. Analyse the user's reading history.
-2. Identify genres and authors they enjoy.
-3. Identify highly rated books.
-4. Consider their TBR and existing preferences.
-5. Exclude books already owned.
-6. Search appropriate external book data.
-7. Rank potential purchases.
-8. Explain why each book is a good match.
+1. Analyse reading history.
+2. Identify preferred genres.
+3. Identify preferred authors.
+4. Analyse highly rated books.
+5. Consider relevant TBR information.
+6. Exclude books already owned.
+7. Retrieve appropriate external candidates.
+8. Rank potential purchases.
+9. Explain the reasons for the recommendations.
 
 ---
 
-### Statistics
+## 31.3 Reading Statistics
 
 The user should eventually be able to ask:
 
@@ -1608,38 +2272,157 @@ The user should eventually be able to ask:
 
 > "Have I been reading more horror this year?"
 
+The system should answer using authoritative application data rather than relying on the LLM's internal knowledge.
+
 ---
 
-### Wearable integration
+## 31.4 Wearable Reading
 
 Where technically supported, the user should eventually be able to:
 
-> **Start Reading → read → Stop Reading**
+```text
+Start Reading
+      ↓
+Read
+      ↓
+Stop Reading
+```
 
-using a wearable device.
+using a supported wearable or companion device.
 
-Book Brain would then record the reading session and associate it with the user's current book where possible.
+Book Brain would record the session and associate it with the current book where possible.
 
 ---
 
-The mature application should be accessible through web and mobile interfaces while maintaining a shared backend and database.
+# 32. Project Quality and Portfolio Objectives
 
-The project should remain genuinely useful to its creator while demonstrating professional skills in:
+Book Brain is intended to demonstrate practical software engineering rather than simply function as a collection of technologies.
 
-* Software engineering.
-* Database design.
-* SQL.
-* Data engineering.
-* Data analytics.
-* Recommendation systems.
-* API integration.
-* Wearable/device integration.
-* Web development.
-* Mobile development.
-* Artificial intelligence.
+The project should demonstrate:
+
+### Software Engineering
+
+* Modular architecture.
+* Separation of responsibilities.
+* Business logic isolation.
+* Error handling.
 * Testing.
-* Deployment.
-* Technical documentation.
-* Data privacy and security.
+* Version control.
+* Documentation.
 
-The architecture should remain sufficiently modular that the underlying concepts can potentially be adapted for other personal collection-management applications in the future.
+### Database Engineering
+
+* Relational data modelling.
+* Primary and foreign keys.
+* Constraints.
+* Normalisation.
+* Referential integrity.
+* SQL queries.
+* Database migrations where required.
+
+### Data Analysis
+
+* Analytical SQL.
+* Pandas.
+* Data transformation.
+* Statistical summaries.
+* Power BI.
+* Visualisation.
+
+### Recommendation Systems
+
+* Candidate generation.
+* Filtering.
+* Ranking.
+* Explainability.
+* Evaluation.
+
+### API Integration
+
+* REST APIs.
+* External metadata.
+* Error handling.
+* Authentication where required.
+* Rate-limit handling.
+
+### Artificial Intelligence
+
+* Structured outputs.
+* Embeddings.
+* Semantic search.
+* LLM integration.
+* Tool calling.
+* RAG.
+* AI provider abstraction.
+
+### Application Development
+
+* Backend API.
+* Web interface.
+* Mobile interface.
+* Barcode scanning.
+* Device integration.
+
+### Security and Privacy
+
+* Secure secrets.
+* Authentication.
+* Authorisation.
+* Data protection.
+* Privacy-aware AI integrations.
+
+The project should prioritise **working, well-designed functionality over the number of technologies used**.
+
+---
+
+# 33. Relationship to Other Documentation
+
+This document describes **what Book Brain should do**.
+
+Other project documentation provides complementary information:
+
+| Document             | Purpose                                        |
+| -------------------- | ---------------------------------------------- |
+| `requirements.md`    | What Book Brain should do                      |
+| `roadmap.md`         | When functionality is planned                  |
+| `architecture.md`    | How the system is structured                   |
+| `database-design.md` | How application data is stored                 |
+| `development-log.md` | What has actually been implemented and learned |
+
+These documents should remain consistent with one another.
+
+When a requirement changes, the relevant architecture, database design, roadmap, and development documentation should be reviewed.
+
+Major architectural or technical decisions should be recorded in the development documentation.
+
+---
+
+# 34. Requirements Status
+
+Requirements in this document are not all current implementation requirements.
+
+They fall into three broad categories:
+
+### Current
+
+Functionality required for the current development phase and MVP.
+
+### Planned
+
+Functionality intended for a later development phase.
+
+### Exploratory
+
+Potential functionality that requires technical investigation before being committed.
+
+Examples of exploratory functionality include:
+
+* Wearable integration.
+* Specific AI providers.
+* Specific vector databases.
+* Specific frontend frameworks.
+* Multi-user deployment.
+
+This distinction is important because the long-term vision should not force premature implementation complexity into the current application.
+
+The current implementation shall remain focused on building a reliable foundation for the later features.
