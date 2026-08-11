@@ -2401,3 +2401,13 @@ ReadingSession
 ```
 
 This model provides the foundation for the current MVP while leaving a clear path toward analytics, recommendations, external book discovery, AI, web/mobile interfaces and wearable integration.
+
+
+## Entity Relationship Diagram
+
+The database entity relationship diagram was created using [draw.io](https://www.drawio.com/).
+
+![Book Brain Database ERD](images/ERD_diagram.png)
+
+The editable Draw.io source file is available at:
+[`docs/diagrams/database-erd.drawio`](diagrams/ERD_diagram.drawio)
