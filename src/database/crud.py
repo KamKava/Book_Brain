@@ -1,0 +1,75 @@
+from database.connection import get_connection
+
+
+def add_book(title):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO books (title)
+        VALUES (?)
+    """, (title,))
+
+    connection.commit()
+
+    book_id = cursor.lastrowid
+
+    connection.close()
+
+    return book_id
+
+
+def get_books():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM books")
+
+    books = cursor.fetchall()
+
+    connection.close()
+
+    return books
+
+
+def get_book(book_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT * FROM books WHERE book_id = ?",
+        (book_id,)
+    )
+
+    book = cursor.fetchone()
+
+    connection.close()
+
+    return book
+
+
+def update_book(book_id, title):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE books
+        SET title = ?
+        WHERE book_id = ?
+    """, (title, book_id))
+
+    connection.commit()
+    connection.close()
+
+
+def delete_book(book_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "DELETE FROM books WHERE book_id = ?",
+        (book_id,)
+    )
+
+    connection.commit()
+    connection.close()
