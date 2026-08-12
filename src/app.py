@@ -1,3 +1,5 @@
+import streamlit as st
+
 from database.schema import create_tables
 from database.crud import (
     add_book,
@@ -8,34 +10,41 @@ from database.crud import (
 )
 
 
-def main():
-    # Make sure the database tables exist
-    create_tables()
-
-    # Add a book
-    book_id = add_book("Earthlings")
-    print("Added book:", book_id)
-
-    # Get all books
-    print("\nAll books:")
-    print(get_books())
-
-    # Get one book
-    print("\nSpecific book:")
-    print(get_book(book_id))
-
-    # Update the book
-    update_book(book_id, "Earthlings - Updated")
-
-    print("\nAfter update:")
-    print(get_book(book_id))
-
-    # Delete the book
-    #delete_book(book_id)
-
-    #print("\nAfter deletion:")
-    print(get_books())
+# Make sure the database and tables exist
+create_tables()
 
 
-if __name__ == "__main__":
-    main()
+st.title("Book Brain")
+
+# --------------------
+# Add a book
+# --------------------
+
+st.subheader("Add a book")
+
+title = st.text_input("Book title")
+
+if st.button("Add book"):
+    if title:
+        book_id = add_book(title)
+        st.success(f"Book added! ID: {book_id}")
+    else:
+        st.warning("Please enter a book title.")
+
+
+# --------------------
+# Display books
+# --------------------
+
+st.subheader("My books")
+
+books = get_books()
+
+if books:
+    for book in books:
+        st.write(f"{book[0]} — {book[1]}")
+        if st.button("Delete book", key=f"delete_{book[0]}"):
+            delete_book(book[0])
+            st.success("Book deleted!")
+else:
+    st.write("No books in your library yet.")
