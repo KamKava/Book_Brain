@@ -18,6 +18,22 @@ def add_book(title):
 
     return book_id
 
+def add_library_entry(book_id, format_id, source_id, price):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO library_entries (book_id, format_id, source_id, price)
+        VALUES (?, ?, ?, ?)
+    """, (book_id, format_id, source_id, price))
+
+    connection.commit()
+
+    lib_entry_id = cursor.lastrowid
+
+    connection.close()
+
+    return lib_entry_id
 
 def get_books():
     connection = get_connection()
@@ -73,3 +89,28 @@ def delete_book(book_id):
 
     connection.commit()
     connection.close()
+
+# Get formats and sources for dropdowns
+def get_formats():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT format_id, name FROM formats")
+
+    formats = cursor.fetchall()
+
+    connection.close()
+
+    return formats
+
+def get_sources():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT source_id, name FROM sources")
+
+    sources = cursor.fetchall()
+
+    connection.close()
+
+    return sources

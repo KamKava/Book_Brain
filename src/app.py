@@ -3,8 +3,11 @@ import streamlit as st
 from database.schema import create_tables
 from database.crud import (
     add_book,
+    add_library_entry,
     get_books,
     get_book,
+    get_sources,
+    get_formats,
     update_book,
     delete_book
 )
@@ -24,13 +27,53 @@ st.subheader("Add a book")
 
 title = st.text_input("Book title")
 
+formats = get_formats()
+
+selected_format = st.selectbox(
+    "Format",
+    formats,
+    format_func=lambda format: format[1]
+)
+
+# Get sources for dropdown
+sources = get_sources()
+
+selected_source = st.selectbox(
+    "Source",
+    sources,
+    format_func=lambda source: source[1]
+)
+#st.write(sources)
+#st.write(selected_source)
+
+has_price = st.checkbox("I paid for this book")
+
+if has_price:
+    price = st.number_input(
+        "Price (£)",
+        min_value=0.0,
+        step=0.01,
+        format="%.2f"
+    )
+else:
+    price = None
+
 if st.button("Add book"):
     if title:
         book_id = add_book(title)
+        add_library_entry(
+            book_id,
+            selected_format[0],
+            selected_source[0],
+            price
+)
         st.success(f"Book added! ID: {book_id}")
     else:
         st.warning("Please enter a book title.")
 
+# Get formats and sources for dropdowns
+formats = get_formats()
+sources = get_sources()
 
 # --------------------
 # Display books
