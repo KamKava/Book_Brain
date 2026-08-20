@@ -5,6 +5,9 @@ from database.crud import (
     add_author,
     add_book,
     add_book_author,
+    add_book_genre,
+    add_book_subgenre,
+    add_book_characteristic,
     add_library_entry,
     get_author_by_name,
     get_books,
@@ -13,6 +16,12 @@ from database.crud import (
     get_sources,
     get_formats,
     get_authors,
+    get_genres,
+    get_subgenres_by_genres,
+    get_audiences,
+    get_characteristics,
+    get_book_types,
+    get_content_types,
     update_book,
     delete_book
 )
@@ -33,6 +42,57 @@ st.subheader("Add a book")
 title = st.text_input("Book title")
 
 author_names = st.text_input("Author name(s)")
+# Get book classifications for dropdowns
+content_types = get_content_types()
+book_types = get_book_types()
+audiences = get_audiences()
+
+selected_content_type = st.selectbox(
+    "Content Type",
+    content_types,
+    format_func=lambda content_type: content_type[1]
+)
+
+selected_book_type = st.selectbox(
+    "Book Type",
+    book_types,
+    format_func=lambda book_type: book_type[1]
+)
+
+# Get genres
+genres = get_genres()
+
+selected_genres = st.multiselect(
+    "Genre",
+    genres,
+    format_func=lambda genre: genre[1]
+)
+
+# Get subgenres belonging to selected genres
+selected_genre_ids = [genre[0] for genre in selected_genres]
+
+subgenres = get_subgenres_by_genres(selected_genre_ids)
+
+selected_subgenres = st.multiselect(
+    "Subgenre",
+    subgenres,
+    format_func=lambda subgenre: subgenre[1]
+)
+
+# Get characteristics
+characteristics = get_characteristics()
+st.write("DEBUG characteristics:", characteristics)
+selected_characteristics = st.multiselect(
+    "Characteristics",
+    characteristics,
+    format_func=lambda characteristic: characteristic[1]
+)
+
+selected_audience = st.selectbox(
+    "Audience",
+    audiences,
+    format_func=lambda audience: audience[1]
+)
 
 formats = get_formats()
 
@@ -69,7 +129,7 @@ if st.button("Add book"):
 
     if title:
 
-        book_id = add_book(title)
+        book_id = add_book(title, selected_book_type[0], selected_audience[0], selected_content_type[0])
 
         if author_names:
             authors = author_names.split(",")
@@ -86,6 +146,13 @@ if st.button("Add book"):
                         author_id = add_author(author_name)
 
                     add_book_author(book_id, author_id)
+            for genre in selected_genres:
+                add_book_genre(book_id, genre[0])
+            for subgenre in selected_subgenres:
+                add_book_subgenre(book_id, subgenre[0])
+            for characteristic in selected_characteristics:
+                add_book_characteristic(book_id, characteristic[0])
+
 
         add_library_entry(
             book_id,

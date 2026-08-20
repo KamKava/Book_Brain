@@ -89,9 +89,7 @@ Successfully tested:
 
 ## Git commit
 
-Suggested commit:
-
-`feat: add author management and book-author relationships`
+Add author management and book-author relationships
 
 ## Next development task
 

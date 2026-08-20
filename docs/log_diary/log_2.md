@@ -65,9 +65,7 @@
 
 ## Git commit
 
-Suggested commit:
-
-feat: add library entry creation
+Add library entry creation
 
 ## Next development task
 
