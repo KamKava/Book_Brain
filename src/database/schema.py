@@ -21,6 +21,25 @@ def create_tables():
         )
     """)
 
+    # Create Authors table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS authors (
+            author_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE
+        )
+    """)
+
+    # Create Book_Authors table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS book_authors (
+            book_id INTEGER NOT NULL,
+            author_id INTEGER NOT NULL,
+            PRIMARY KEY (book_id, author_id),
+            FOREIGN KEY (book_id) REFERENCES books(book_id),
+            FOREIGN KEY (author_id) REFERENCES authors(author_id)
+        )
+    """)
+
     # create sources table
     # pk source_id, name
     cursor.execute("""

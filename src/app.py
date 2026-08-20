@@ -2,8 +2,11 @@ import streamlit as st
 
 from database.schema import create_tables
 from database.crud import (
+    add_author,
     add_book,
+    add_book_author,
     add_library_entry,
+    get_author_by_name,
     get_books,
     get_book,
     get_sources,
@@ -26,6 +29,8 @@ st.title("Book Brain")
 st.subheader("Add a book")
 
 title = st.text_input("Book title")
+
+author_name = st.text_input("Author name")
 
 formats = get_formats()
 
@@ -59,15 +64,30 @@ else:
     price = None
 
 if st.button("Add book"):
+
     if title:
+
         book_id = add_book(title)
+
+        if author_name:
+            author = get_author_by_name(author_name)
+
+            if author:
+                author_id = author[0]
+            else:
+                author_id = add_author(author_name)
+
+            add_book_author(book_id, author_id)
+
         add_library_entry(
             book_id,
             selected_format[0],
             selected_source[0],
             price
-)
+        )
+
         st.success(f"Book added! ID: {book_id}")
+
     else:
         st.warning("Please enter a book title.")
 
@@ -91,3 +111,4 @@ if books:
             st.success("Book deleted!")
 else:
     st.write("No books in your library yet.")
+
