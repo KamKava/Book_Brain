@@ -9,8 +9,10 @@ from database.crud import (
     get_author_by_name,
     get_books,
     get_book,
+    get_library_entries,
     get_sources,
     get_formats,
+    get_authors,
     update_book,
     delete_book
 )
@@ -30,7 +32,7 @@ st.subheader("Add a book")
 
 title = st.text_input("Book title")
 
-author_name = st.text_input("Author name")
+author_names = st.text_input("Author name(s)")
 
 formats = get_formats()
 
@@ -69,15 +71,21 @@ if st.button("Add book"):
 
         book_id = add_book(title)
 
-        if author_name:
-            author = get_author_by_name(author_name)
+        if author_names:
+            authors = author_names.split(",")
 
-            if author:
-                author_id = author[0]
-            else:
-                author_id = add_author(author_name)
+            for author_name in authors:
+                author_name = author_name.strip()
 
-            add_book_author(book_id, author_id)
+                if author_name:
+                    author = get_author_by_name(author_name)
+
+                    if author:
+                        author_id = author[0]
+                    else:
+                        author_id = add_author(author_name)
+
+                    add_book_author(book_id, author_id)
 
         add_library_entry(
             book_id,
@@ -101,13 +109,14 @@ sources = get_sources()
 
 st.subheader("My books")
 
-books = get_books()
+library_entries = get_library_entries()
 
-if books:
-    for book in books:
-        st.write(f"{book[0]} — {book[1]}")
-        if st.button("Delete book", key=f"delete_{book[0]}"):
-            delete_book(book[0])
+if library_entries:
+    for entry in library_entries:
+        st.write(f"{entry[1]} — {entry[2]} — {entry[3]}")
+
+        if st.button("Delete book", key=f"delete_{entry[0]}"):
+            delete_book(entry[0])
             st.success("Book deleted!")
 else:
     st.write("No books in your library yet.")

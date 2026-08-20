@@ -83,6 +83,35 @@ def add_library_entry(book_id, format_id, source_id, price):
 
     return lib_entry_id
 
+# Get book names and authors for display in the library table
+def get_library_entries():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT 
+            le.lib_entry_id,
+            b.title,
+            GROUP_CONCAT(a.name, ', ') AS authors,
+            f.name AS format,
+            s.name AS source,
+            le.price
+        FROM library_entries le
+        JOIN books b ON le.book_id = b.book_id
+        LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+        LEFT JOIN authors a ON ba.author_id = a.author_id
+        JOIN formats f ON le.format_id = f.format_id
+        JOIN sources s ON le.source_id = s.source_id
+        GROUP BY le.lib_entry_id, b.title, f.name, s.name, le.price
+    """)
+
+    entries = cursor.fetchall()
+
+    connection.close()
+
+    return entries
+
+# Get books for dropdowns and other displays
 def get_books():
     connection = get_connection()
     cursor = connection.cursor()
@@ -94,6 +123,19 @@ def get_books():
     connection.close()
 
     return books
+
+# Get Authors for dropdowns and other displays
+def get_authors():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM authors")
+
+    authors = cursor.fetchall()
+
+    connection.close()
+
+    return authors
 
 
 def get_book(book_id):
