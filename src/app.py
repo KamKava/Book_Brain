@@ -1,6 +1,7 @@
 import streamlit as st
 
 from database.schema import create_tables
+from database.seed import seed_reference_data
 from database.crud import (
     add_author,
     add_book,
@@ -12,7 +13,7 @@ from database.crud import (
     get_author_by_name,
     get_books,
     get_book,
-    get_library_entries,
+    get_copy,
     get_sources,
     get_formats,
     get_authors,
@@ -29,7 +30,7 @@ from database.crud import (
 
 # Make sure the database and tables exist
 create_tables()
-
+seed_reference_data()
 
 st.title("Book Brain")
 
@@ -81,7 +82,6 @@ selected_subgenres = st.multiselect(
 
 # Get characteristics
 characteristics = get_characteristics()
-st.write("DEBUG characteristics:", characteristics)
 selected_characteristics = st.multiselect(
     "Characteristics",
     characteristics,
@@ -146,13 +146,15 @@ if st.button("Add book"):
                         author_id = add_author(author_name)
 
                     add_book_author(book_id, author_id)
-            for genre in selected_genres:
-                add_book_genre(book_id, genre[0])
-            for subgenre in selected_subgenres:
-                add_book_subgenre(book_id, subgenre[0])
-            for characteristic in selected_characteristics:
-                add_book_characteristic(book_id, characteristic[0])
 
+        for genre in selected_genres:
+            add_book_genre(book_id, genre[0])
+
+        for subgenre in selected_subgenres:
+            add_book_subgenre(book_id, subgenre[0])
+
+        for characteristic in selected_characteristics:
+            add_book_characteristic(book_id, characteristic[0])
 
         add_library_entry(
             book_id,
@@ -176,10 +178,10 @@ sources = get_sources()
 
 st.subheader("My books")
 
-library_entries = get_library_entries()
+copy = get_copy()
 
-if library_entries:
-    for entry in library_entries:
+if copy:
+    for entry in copy:
         st.write(f"{entry[1]} — {entry[2]} — {entry[3]}")
 
         if st.button("Delete book", key=f"delete_{entry[0]}"):

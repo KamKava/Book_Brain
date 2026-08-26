@@ -44,16 +44,37 @@ def create_tables():
         )
     """)
 
-# create library_entries table
+
+# Create editions table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS editions (
+            edition_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            book_id INTEGER NOT NULL,
+
+            isbn_13 TEXT UNIQUE,
+            isbn_10 TEXT UNIQUE,
+
+            barcode TEXT UNIQUE,
+            barcode_type TEXT,
+
+            publisher TEXT,
+            publication_date TEXT,
+
+            FOREIGN KEY (book_id)
+            REFERENCES books(book_id)
+        )
+    """)
+
+# create copy table
     # pk lib_entry_id, book_id, format_id, source_id, price
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS library_entries (
+        CREATE TABLE IF NOT EXISTS copy (
             lib_entry_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            book_id INTEGER NOT NULL,
+            edition_id INTEGER NOT NULL,
             format_id INTEGER NOT NULL,
             source_id INTEGER NOT NULL,
             price REAL,
-            FOREIGN KEY (book_id) REFERENCES books(book_id),
+            FOREIGN KEY (edition_id) REFERENCES editions(edition_id),
             FOREIGN KEY (format_id) REFERENCES formats(format_id),
             FOREIGN KEY (source_id) REFERENCES sources(source_id)
         )
@@ -69,13 +90,14 @@ def create_tables():
 
     # Create subgenres table
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS subgenres (
+        CREATE TABLE subgenres (
             subgenre_id INTEGER PRIMARY KEY AUTOINCREMENT,
             genre_id INTEGER NOT NULL,
-            name TEXT NOT NULL UNIQUE,
-            FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+            name TEXT NOT NULL,
+            FOREIGN KEY (genre_id) REFERENCES genres(genre_id),
+            UNIQUE (genre_id, name)
         )
-    """)
+    """)    
 
     # Create audience table
     cursor.execute("""
